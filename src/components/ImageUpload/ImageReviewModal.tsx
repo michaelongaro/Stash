@@ -31,15 +31,13 @@ interface IFolderOptions {
   id?: string;
 }
 
-// const folderOptions: IFolderOptions[] = [];
-
 // change/split this up later
-interface IVisibilityOptions {
+export interface IVisibilityOptions {
   label: string;
   value: boolean;
 }
 
-const visibilityOptions: IVisibilityOptions[] = [
+export const visibilityOptions: IVisibilityOptions[] = [
   { label: "Public", value: true },
   { label: "Private", value: false },
 ];
@@ -49,7 +47,7 @@ const DynamicHeader = dynamic(() => import("./ImageEditorModal"), {
 });
 
 function ImageReviewModal({ files, setFiles }: IFileProps) {
-  const { data } = trpc.images.getUserFolders.useQuery(); // look up .useQuery here
+  const { data: allUserFolders } = trpc.images.getUserFolders.useQuery();
 
   const [imageData, setImageData] = useState<IFile[]>([]);
   const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);
@@ -77,14 +75,14 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
   }, [files]);
 
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (allUserFolders && allUserFolders.length > 0) {
       const folderData: IFolderOptions[] = [];
-      data.map((folder) => {
+      allUserFolders.map((folder) => {
         folderData.push({ id: folder.id, title: folder.title });
       });
       setFolderOptions(folderData);
     }
-  }, [data]);
+  }, [allUserFolders]);
 
   // const onChange = (
   //   option: IFolderOptions | null,
@@ -125,8 +123,10 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           </button>
 
           {/* will most likely have to move the location of this, uncomment later */}
-
-          {/* <DynamicHeader imageFile={imageToBeEdited} /> */}
+          <DynamicHeader
+            imageFile={imageToBeEdited}
+            setImageToBeEdited={setImageToBeEdited}
+          />
 
           <button
             className={classes.upload}
