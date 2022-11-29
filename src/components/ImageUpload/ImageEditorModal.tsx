@@ -1,32 +1,33 @@
 import React from "react";
 import ImageEditor from "@toast-ui/react-image-editor";
+import { whiteTheme } from "../../ui/whiteTheme";
 
 interface IImageEditorModal {
   imageFile: File | undefined;
+  setImageToBeEdited: React.Dispatch<React.SetStateAction<File | undefined>>;
 }
 
-function ImageEditorModal({ imageFile }: IImageEditorModal) {
-  const myTheme = {
-    // Theme object to extends default dark theme.
-  };
-
+function ImageEditorModal({
+  imageFile,
+  setImageToBeEdited,
+}: IImageEditorModal) {
   if (!imageFile) return <></>;
 
   return (
     <ImageEditor
       includeUI={{
         loadImage: {
-          path: imageFile,
-          name: "SampleImage",
+          path: URL.createObjectURL(imageFile),
+          name: imageFile.name,
         },
-        theme: myTheme,
-        menu: ["shape", "filter"],
-        initMenu: "filter",
+        theme: whiteTheme,
+        // menu: ["shape", "filter"],
+        initMenu: "crop",
         uiSize: {
           width: "1000px",
           height: "700px",
         },
-        menuBarPosition: "bottom",
+        menuBarPosition: "right",
       }}
       cssMaxHeight={500}
       cssMaxWidth={700}
