@@ -4,6 +4,9 @@ import { SessionProvider } from "next-auth/react";
 
 import { trpc } from "../utils/trpc";
 
+import "../components/ImageUpload/SlideshowStyles.css";
+import "tui-image-editor/dist/tui-image-editor.css";
+import "react-slideshow-image/dist/styles.css";
 import "../styles/globals.css";
 
 const MyApp: AppType<{ session: Session | null }> = ({
