@@ -1,23 +1,40 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-  // Further reading:
-  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Example {
+model Guestbook {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  name      String
+  message   String   @db.VarChar(100)
+}
+
+model Image {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  s3ImageURL    String
+  randomizedURL String
+  isPublic      Boolean
+  title         String?  @db.VarChar(100)
+  description   String?  @db.VarChar(150)
+  folder        Folder?  @relation(fields: [folderID], references: [id])
+  folderID      String?
+  user          User?    @relation(fields: [userID], references: [id])
+  userID        String?
+}
+
+model Folder {
+  id          String  @id @default(cuid())
+  title       String  @db.VarChar(100)
+  description String?
+  images      Image[]
+  user        User?   @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID      String?
 }
 
 // Necessary for Next auth
@@ -27,12 +44,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? // @db.Text
-  access_token      String? // @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? // @db.Text
+  id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -48,13 +65,15 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+  accounts       Account[]
+  sessions       Session[]
+  uploadedImages Image[]
+  folders        Folder[]
 }
 
 model VerificationToken {
