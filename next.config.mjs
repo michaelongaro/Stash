@@ -21,6 +21,12 @@ const config = {
         port: "",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "stash-resources.s3-us-east-2.amazonaws.com",
+        port: "",
+        pathname: "**",
+      },
     ],
   },
 };
