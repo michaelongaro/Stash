@@ -1,0 +1,59 @@
+/* only in this file because I couldn't figure out how to get regular .module css
+   file to recognize the chained class styles */
+
+.react-slideshow-wrapper {
+  box-shadow: rgb(0 0 0 / 30%) 0px 2px 4px;
+  border-radius: 1em;
+}
+
+.images-wrap>div {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.durationIndicator {
+  opacity: 0.3;
+  cursor: pointer;
+  transition: all 200ms;
+}
+
+.durationIndicator.active {
+  opacity: 1;
+}
+
+.react-slideshow-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  max-width: 75%;
+  margin: auto;
+}
+
+.react-slideshow-container .default-nav:last-of-type {
+  margin-left: -35px;
+}
+
+.react-slideshow-container .default-nav:first-of-type {
+  margin-right: -35px;
+  border-right: 0;
+  border-top: 0;
+}
+
+.images-wrap>div>div>img {
+  border-radius: 1em;
+}
+
+@media (max-width: 600px) {
+  .react-slideshow-container {
+    width: 70%;
+  }
+}
+
+@media (max-width: 430px) {
+  .react-slideshow-container {
+    width: 50%;
+  }
+}

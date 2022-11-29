@@ -1,0 +1,109 @@
+.modalGrid {
+  display: grid;
+  grid-template-columns: .1fr 0.7fr .1fr .1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 20fr 1fr 1fr 1fr;
+  gap: 16px 16px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "preview imageNumbers edit upload"
+    "slideshow slideshow filenameLabel filename"
+    "slideshow slideshow lastModifiedLabel lastModified"
+    "slideshow slideshow fileSizeLabel fileSize"
+    "slideshow slideshow . ."
+    "titleLabel titleInput folderLabel folderDropdown"
+    "descriptionLabel descriptionInput visibilityLabel visibilityDropdown"
+    "previousButton dragAndDropUpload dragAndDropUpload nextButton";
+  width: 75vw;
+  height: 90vh;
+  background-color: hsl(217, 33%, 57%);
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+.preview {
+  grid-area: preview;
+}
+
+.imageNumbers {
+  grid-area: imageNumbers;
+}
+
+.edit {
+  grid-area: edit;
+}
+
+.upload {
+  grid-area: upload;
+}
+
+.slideshow {
+  grid-area: slideshow;
+}
+
+.filenameLabel {
+  grid-area: filenameLabel;
+}
+
+.filename {
+  grid-area: filename;
+}
+
+.lastModifiedLabel {
+  grid-area: lastModifiedLabel;
+}
+
+.lastModified {
+  grid-area: lastModified;
+}
+
+.fileSizeLabel {
+  grid-area: fileSizeLabel;
+}
+
+.fileSize {
+  grid-area: fileSize;
+}
+
+.titleLabel {
+  grid-area: titleLabel;
+}
+
+.titleInput {
+  grid-area: titleInput;
+}
+
+.descriptionLabel {
+  grid-area: descriptionLabel;
+}
+
+.descriptionInput {
+  grid-area: descriptionInput;
+}
+
+.folderLabel {
+  grid-area: folderLabel;
+}
+
+.folderDropdown {
+  grid-area: folderDropdown;
+}
+
+.visibilityLabel {
+  grid-area: visibilityLabel;
+}
+
+.visibilityDropdown {
+  grid-area: visibilityDropdown;
+}
+
+.previousButton {
+  grid-area: previousButton;
+}
+
+.dragAndDropUpload {
+  grid-area: dragAndDropUpload;
+}
+
+.nextButton {
+  grid-area: nextButton;
+}
