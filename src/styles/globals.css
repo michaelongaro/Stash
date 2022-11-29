@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply bg-neutral-900 text-neutral-100;
+}
+
+button {
+  padding: 11px 16px;
+  cursor: pointer;
+  border-width: 1px;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #3e64ff;
+  border-radius: .5rem;
+  border-color: #3e64ff;
+  transition: all 150ms;
+}
+
+button:hover {
+  color: #fff;
+  background: #3e64ff !important;
+  border-color: #3e64ff !important;
+}
