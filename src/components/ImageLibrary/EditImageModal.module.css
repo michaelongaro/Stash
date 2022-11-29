@@ -1,0 +1,54 @@
+.editImageDetailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1rem 1rem;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "titleLabel titleInput titleInput titleInput editButton editButton saveButton closeButton"
+    "descriptionLabel descriptionInput descriptionInput descriptionInput folderLabel FolderDropdownInput visibilityLabel visibilityDowndownInput";
+}
+
+.titleLabel {
+  grid-area: titleLabel;
+}
+
+.descriptionLabel {
+  grid-area: descriptionLabel;
+}
+
+.titleInput {
+  grid-area: titleInput;
+}
+
+.descriptionInput {
+  grid-area: descriptionInput;
+}
+
+.closeButton {
+  grid-area: closeButton;
+}
+
+.saveButton {
+  grid-area: saveButton;
+}
+
+.editButton {
+  grid-area: editButton;
+}
+
+.folderLabel {
+  grid-area: folderLabel;
+}
+
+.FolderDropdownInput {
+  grid-area: FolderDropdownInput;
+}
+
+.visibilityLabel {
+  grid-area: visibilityLabel;
+}
+
+.visibilityDowndownInput {
+  grid-area: visibilityDowndownInput;
+}
