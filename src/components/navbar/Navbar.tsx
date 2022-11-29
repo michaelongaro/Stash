@@ -22,7 +22,7 @@ function Navbar() {
           }
           alt={"profile image"}
           width={48}
-          height={4}
+          height={48}
           style={{ borderRadius: "50%" }}
         />
         {session?.user.name ?? session?.user.email}
