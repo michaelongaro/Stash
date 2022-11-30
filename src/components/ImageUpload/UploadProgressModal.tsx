@@ -10,11 +10,9 @@ import { useSession } from "next-auth/react";
 
 const config = {
   bucketName: "stash-resources",
-  // dirName: "photos" /* optional */,
   region: "us-east-2",
   accessKeyId: "AKIA3MXYY55AXMHDSQCJ",
   secretAccessKey: "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",
-  // s3Url: "https://my-s3-url.com/" /* optional */,
 };
 
 const S3Client = new S3(config);
@@ -26,12 +24,20 @@ interface IUploadProgressModal {
 
 function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   const { data: session, status } = useSession();
-  const { data: allUserFolders } = trpc.images.getUserFolders.useQuery();
+  const utils = trpc.useContext();
 
   const [s3URLs, setS3URLs] = useState<string[]>([]);
   const [uploadsHaveStarted, setUploadsHaveStarted] = useState<boolean>(false);
 
-  const utils = trpc.useContext();
+  const [fileIndex, setFileIndex] = useState<number>(0);
+  const [newlyAddedFolderID, setNewlyAddedFolderID] = useState<string>();
+  const [numImagesInsertedIntoDatabase, setNumImagesInsertedIntoDatabase] =
+    useState<number>(0);
+
+  // destroys component when all images are inside the database
+  if (numImagesInsertedIntoDatabase === files.length) {
+    setFiles([]);
+  }
 
   // optimistic updating
   const addImage = trpc.images.addImage.useMutation({
@@ -43,11 +49,16 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
         utils.images.getUserImages.setData(optimisticUpdate);
       }
     },
+    onSuccess() {
+      setNumImagesInsertedIntoDatabase((prevNum) => prevNum + 1);
+      setFileIndex((index) => index + 1);
+    },
     onSettled: () => {
       utils.images.getUserImages.invalidate();
     },
   });
 
+  // could probably export this and not have to repeat in <EditImageModal />
   const createFolder = trpc.images.createFolder.useMutation({
     onMutate: () => {
       utils.images.getUserFolders.cancel();
@@ -57,6 +68,11 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
         utils.images.getUserFolders.setData(optimisticUpdate);
       }
     },
+    onSuccess(data) {
+      if (data && data.id.length > 0) {
+        setNewlyAddedFolderID(data.id);
+      }
+    },
     onSettled: () => {
       utils.images.getUserFolders.invalidate();
     },
@@ -64,7 +80,6 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   // currently uploading the image(s) twice... has to be from useEffect below but not
   // sure exactly what is causing that
-
   interface IS3Response {
     bucket: string;
     key: string;
@@ -72,8 +87,26 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   }
 
   useEffect(() => {
-    console.log(files, files.length, uploadsHaveStarted);
+    if (
+      newlyAddedFolderID &&
+      newlyAddedFolderID.length > 0 &&
+      fileIndex < files.length
+    ) {
+      addImage.mutate({
+        s3ImageURL: s3URLs[fileIndex]!,
+        randomizedURL: cryptoRandomString({ length: 5 }),
+        title: files[fileIndex]!.title,
+        description: files[fileIndex]!.description,
+        isPublic: files[fileIndex]!.isPublic,
+        userID: session?.user?.id,
+        folderID: newlyAddedFolderID,
+      });
 
+      setNewlyAddedFolderID(undefined); // preventing rerenders of this effect until new folder id is added
+    }
+  }, [s3URLs, files, fileIndex, session, newlyAddedFolderID]);
+
+  useEffect(() => {
     if (files.length > 0 && !uploadsHaveStarted) {
       files.map((file) => {
         setUploadsHaveStarted(true);
@@ -87,34 +120,47 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   useEffect(() => {
     if (s3URLs.length === files.length) {
-      // trpc mutate call here
-      console.log(s3URLs);
-
       files.map((file, i) => {
-        // if (file.folder && !file.folder.id) {
-        //   console.log("trying to create folder");
-
-        //   createFolder.mutate({
-        //     title: file.folder.title,
-        //     userID: session?.user?.id ?? "random", // for non-registered users, will have to get this from localstorage
-        //   });
-        // }
-
-        addImage.mutate({
-          s3ImageURL: s3URLs[i] ?? "changeThisLater",
-          randomizedURL: cryptoRandomString({ length: 5 }),
-          title: file.title,
-          description: file.description,
-          isPublic: file.isPublic,
-          userID: session?.user?.id ?? "changeThisLater",
-          folderID: file.folder?.id ?? "changeThisLater", // think of a better way to this for all "??" above
-        });
+        // need to be logged in to create a folder
+        if (
+          file.folder &&
+          typeof file.folder.id === "undefined" &&
+          session?.user?.id
+        ) {
+          createFolder.mutate({
+            title: file.folder.title,
+            userID: session.user.id,
+          });
+        }
+        // HAS to be a better/quicker way to narrow that down...
+        else if (
+          file.folder &&
+          file.folder.id &&
+          file.folder.id.length > 0 &&
+          session?.user?.id
+        ) {
+          addImage.mutate({
+            s3ImageURL: s3URLs[i] ?? "changeLater",
+            randomizedURL: cryptoRandomString({ length: 5 }),
+            title: file.title,
+            description: file.description,
+            isPublic: file.isPublic,
+            userID: session.user.id,
+            folderID: file.folder.id,
+          });
+        } else if (session?.user?.id) {
+          addImage.mutate({
+            s3ImageURL: s3URLs[i] ?? "changeLater",
+            randomizedURL: cryptoRandomString({ length: 5 }),
+            title: file.title,
+            description: file.description,
+            isPublic: file.isPublic,
+            userID: session.user.id,
+          });
+        }
       });
-
-      // at end of trpc once everything is fully updated do this:
-      setFiles([]);
     }
-  }, [s3URLs, files]);
+  }, [s3URLs, files, session]);
 
   // have this run for a certain amount of time, or when all files are fully uploaded to db
   // whichever comes first
