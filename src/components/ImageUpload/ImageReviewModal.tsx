@@ -26,12 +26,11 @@ export interface IFile {
   folder?: IFolderOptions;
 }
 
-interface IFolderOptions {
+export interface IFolderOptions {
   title: string;
   id?: string;
 }
 
-// change/split this up later
 export interface IVisibilityOptions {
   label: string;
   value: boolean;
@@ -47,6 +46,7 @@ const DynamicHeader = dynamic(() => import("./ImageEditorModal"), {
 });
 
 function ImageReviewModal({ files, setFiles }: IFileProps) {
+  const { data: session } = useSession();
   const { data: allUserFolders } = trpc.images.getUserFolders.useQuery();
 
   const [imageData, setImageData] = useState<IFile[]>([]);
@@ -84,28 +84,13 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
     }
   }, [allUserFolders]);
 
-  // const onChange = (
-  //   option: IFolderOptions | null,
-  //   actionMeta: ActionMeta<IFolderOptions>
-  // ) => {
-  //   console.log("newFolder value:", option);
-
-  //   const newImageData = [...imageData];
-  //   // creating folder object + scaffolding
-  //   newImageData[index]!.folder = { title: option!.title };
-  //   // newImageData[index]!.folder!.title = newFolder!.title;
-  //   setImageData(newImageData);
-  // };
-
-  // const [showModal, setShowModal] = useState<boolean>(true)
-
   return (
     <div
       style={{
         opacity: files.length !== 0 ? 1 : 0,
         pointerEvents: files.length !== 0 ? "auto" : "none",
       }}
-      className="absolute top-0 left-0 flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-slate-800 transition-all"
+      className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-slate-800 transition-all"
     >
       {imageData.length !== 0 && !startUploadOfImages && (
         <div className={classes.modalGrid}>
@@ -174,17 +159,22 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             <CreateSelectable
               isClearable
               options={folderOptions}
-              // returns {value: string, ...} when what you need is {title: string}
-              // modifying this isn't particularly easy, ideally don't want to change interface
-              // type to be value instead of title..
-              onChange={(newFolder) => {
+              getOptionLabel={(options) => options.title}
+              getOptionValue={(options) => options.id!} // may have to look at this again if a brand new folder is created
+              onChange={(newFolder: IFolderOptions | null) => {
                 const newImageData = [...imageData];
-                newImageData[index]!.folder = { title: newFolder!.title };
+                newImageData[index]!.folder = {
+                  // not sure of how to resolve this:
+                  // newFolder says it is of type IFolderOptions, however it is still
+                  // typed in form: {value: string, label: string, ...}
+
+                  // when user backspaces/clicks the "x" it throws error, need to handle that
+                  title: newFolder!.value ?? newFolder!.title,
+                };
                 setImageData(newImageData);
               }}
-              // onChange={onChange}
-              // onCreateOption={(inputValue) => setFolder({ title: inputValue })}
               value={imageData[index]?.folder}
+              isDisabled={!session?.user?.id}
               placeholder="Optional"
             />
           </div>
@@ -202,6 +192,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
                   ? { label: "Public", value: true }
                   : { label: "Private", value: false }
               }
+              isDisabled={!session?.user?.id}
             />
           </div>
 
