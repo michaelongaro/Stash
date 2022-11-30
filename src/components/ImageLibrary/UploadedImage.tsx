@@ -18,6 +18,7 @@ function UploadedImage({ image, setImageBeingEdited }: IUploadedImage) {
     <div className="relative flex items-center justify-center">
       {/* how to have dynamic width/height... */}
       <Image
+        className="cursor-pointer rounded-md"
         src={image.s3ImageURL}
         alt={image?.title ?? "uploaded image"}
         width={250}
