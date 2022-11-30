@@ -38,42 +38,57 @@ export const imagesRouter = router({
       z.object({
         s3ImageURL: z.string().url(),
         randomizedURL: z.string(),
-        title: z.string(),
-        description: z.string(),
         isPublic: z.boolean(),
-        userID: z.string(),
-        folderID: z.string(),
+        title: z.string().optional().nullish(), // prisma makes optional fields null
+        description: z.string().optional().nullish(),
+        userID: z.string().optional().nullish(),
+        folderID: z.string().optional().nullish(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // refactor later, probably split into two mutate functions
-        // where one is public and other is a privateProcedure
-
-        if (input.folderID !== "changeThisLater") {
-          await ctx.prisma.image.create({
-            data: {
-              s3ImageURL: input.s3ImageURL,
-              randomizedURL: input.randomizedURL,
-              title: input.title,
-              description: input.description,
-              isPublic: input.isPublic,
-              userID: input.userID,
-              folderID: input.folderID,
-            },
-          });
-        } else {
-          await ctx.prisma.image.create({
-            data: {
-              s3ImageURL: input.s3ImageURL,
-              randomizedURL: input.randomizedURL,
-              title: input.title,
-              description: input.description,
-              userID: input.userID,
-              isPublic: input.isPublic,
-            },
-          });
-        }
+        await ctx.prisma.image.create({
+          data: {
+            s3ImageURL: input.s3ImageURL,
+            randomizedURL: input.randomizedURL,
+            title: input.title,
+            description: input.description,
+            folderID: input.folderID,
+            userID: input.userID,
+            isPublic: input.isPublic,
+          },
+        });
+        // }
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+  updateImageData: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        s3ImageURL: z.string().url(),
+        randomizedURL: z.string(),
+        isPublic: z.boolean(),
+        title: z.string().optional().nullish(),
+        description: z.string().optional().nullish(),
+        userID: z.string().optional().nullish(),
+        folderID: z.string().optional().nullish(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.image.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            title: input.title,
+            description: input.description,
+            isPublic: input.isPublic,
+            folderID: input.folderID,
+          },
+        });
       } catch (error) {
         console.log(error);
       }
@@ -81,21 +96,21 @@ export const imagesRouter = router({
   createFolder: publicProcedure
     .input(
       z.object({
-        title: z.string(),
-        // description: z.string(),
         userID: z.string(),
+        title: z.string(),
+        description: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const b = await ctx.prisma.folder.create({
+        const folder = await ctx.prisma.folder.create({
           data: {
             title: input.title,
-            // description: input.description,
+            description: input.description,
             userID: input.userID,
           },
         });
-        console.log("b:", b);
+        return folder;
       } catch (error) {
         console.log(error);
       }
