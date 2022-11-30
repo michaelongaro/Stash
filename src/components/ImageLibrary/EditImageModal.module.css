@@ -1,12 +1,13 @@
 .editImageDetailsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 0.5fr 1fr 1fr 0.5fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
   gap: 1rem 1rem;
   grid-auto-flow: row;
   grid-template-areas:
-    "titleLabel titleInput titleInput titleInput editButton editButton saveButton closeButton"
-    "descriptionLabel descriptionInput descriptionInput descriptionInput folderLabel FolderDropdownInput visibilityLabel visibilityDowndownInput";
+    "titleLabel titleInput titleInput folderLabel folderDropdownInput . editButton editButton"
+    "descriptionLabel descriptionInput descriptionInput visibilityLabel visibilityDowndownInput . saveButton saveButton"
+    "dateCreatedLabel dateCreatedValue . linkLabel linkValue linkValue . .";
 }
 
 .titleLabel {
@@ -25,10 +26,6 @@
   grid-area: descriptionInput;
 }
 
-.closeButton {
-  grid-area: closeButton;
-}
-
 .saveButton {
   grid-area: saveButton;
 }
@@ -41,8 +38,8 @@
   grid-area: folderLabel;
 }
 
-.FolderDropdownInput {
-  grid-area: FolderDropdownInput;
+.folderDropdownInput {
+  grid-area: folderDropdownInput;
 }
 
 .visibilityLabel {
@@ -51,4 +48,20 @@
 
 .visibilityDowndownInput {
   grid-area: visibilityDowndownInput;
+}
+
+.dateCreatedLabel {
+  grid-area: dateCreatedLabel;
+}
+
+.dateCreatedValue {
+  grid-area: dateCreatedValue;
+}
+
+.linkLabel {
+  grid-area: linkLabel;
+}
+
+.linkValue {
+  grid-area: linkValue;
 }
