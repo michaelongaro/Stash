@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { type Image as IImage } from "@prisma/client";
+import { useSession } from "next-auth/react";
 
 import { FaTimes, FaEdit, FaCrop } from "react-icons/fa";
 
-import classes from "./EditImageModal.module.css";
+import isEqual from "lodash.isequal";
+
 import dynamic from "next/dynamic";
 import Select from "react-select";
-import { visibilityOptions } from "../ImageUpload/ImageReviewModal";
+import {
+  type IFolderOptions,
+  visibilityOptions,
+} from "../ImageUpload/ImageReviewModal";
 import Image from "next/image";
+
+import CreateSelectable from "react-select/creatable";
+
+import { trpc } from "../../utils/trpc";
+import classes from "./EditImageModal.module.css";
 
 const DynamicHeader = dynamic(() => import("../ImageUpload/ImageEditorModal"), {
   ssr: false,
@@ -19,17 +29,98 @@ interface IEditImageModal {
 }
 
 function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
+  const { data: session } = useSession();
+  const { data: allUserFolders } = trpc.images.getUserFolders.useQuery();
+  const utils = trpc.useContext();
+
+  const [editedImageData, setEditedImageData] = useState<IImage>(image);
+  const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);
+
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
 
-  const [editedImageData, setEditedImageData] = useState<IImage>(image);
+  // separate state for folder because image only has folderID, and we need both the id
+  // and the title of the folder to be available in <CreateSelectable /> below
+  const [currentFolderForImage, setCurrentFolderForImage] =
+    useState<IFolderOptions | null>(null);
+  const [newlyAddedFolderID, setNewlyAddedFolderID] = useState<string>();
+
   const [imageToBeEdited, setImageToBeEdited] = useState<IImage>();
 
-  // useEffect(() => {
-  //   if (image) {
+  const [readyToUpdate, setReadyToUpdate] = useState<boolean>(false);
 
-  //   }
-  // }, [image])
+  const createFolder = trpc.images.createFolder.useMutation({
+    onMutate: () => {
+      utils.images.getUserFolders.cancel();
+      const optimisticUpdate = utils.images.getUserFolders.getData();
+
+      if (optimisticUpdate) {
+        utils.images.getUserFolders.setData(optimisticUpdate);
+      }
+    },
+    onSuccess(data) {
+      if (data && data.id.length > 0) {
+        setNewlyAddedFolderID(data.id);
+      }
+    },
+    onSettled: () => {
+      utils.images.getUserFolders.invalidate();
+    },
+  });
+
+  const updateImageData = trpc.images.updateImageData.useMutation({
+    onMutate: () => {
+      utils.images.getUserImages.cancel();
+      const optimisticUpdate = utils.images.getUserImages.getData();
+
+      if (optimisticUpdate) {
+        utils.images.getUserImages.setData(optimisticUpdate);
+      }
+
+      setImageBeingEdited(undefined);
+    },
+    onSuccess() {
+      setImageBeingEdited(undefined);
+    },
+    onSettled: () => {
+      utils.images.getUserImages.invalidate();
+      setImageBeingEdited(undefined);
+    },
+  });
+
+  useEffect(() => {
+    if (allUserFolders && allUserFolders.length > 0) {
+      const folderData: IFolderOptions[] = [];
+      allUserFolders.map((folder) => {
+        if (image.folderID === folder.id) {
+          setCurrentFolderForImage(folder);
+        }
+        folderData.push({ id: folder.id, title: folder.title });
+      });
+      setFolderOptions(folderData);
+    }
+  }, [allUserFolders]);
+
+  // probably redo these two effects later
+  useEffect(() => {
+    if (newlyAddedFolderID && newlyAddedFolderID.length > 0) {
+      setReadyToUpdate(true);
+      setNewlyAddedFolderID(undefined);
+    }
+  }, [newlyAddedFolderID]);
+
+  useEffect(() => {
+    if (readyToUpdate) {
+      updateImageData.mutate({
+        ...editedImageData,
+        folderID:
+          newlyAddedFolderID ?? currentFolderForImage?.id?.length
+            ? currentFolderForImage?.id
+            : null,
+      });
+      setReadyToUpdate(false);
+    }
+  }, [readyToUpdate, currentFolderForImage, editedImageData]);
 
   return (
     <div
@@ -37,16 +128,18 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         opacity: image ? 1 : 0,
         pointerEvents: image ? "auto" : "none",
       }}
-      className="absolute top-0 left-0 flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-slate-800 transition-all"
+      className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-slate-800 transition-all"
     >
-      <div className="flex flex-col items-center justify-center gap-4 rounded-md bg-slate-400/75 p-10">
-        <div className={classes.editImageDetailsGrid}>
+      <div className="relative flex max-w-[95vw] flex-col items-center justify-center gap-4 rounded-md bg-slate-400/75 p-10">
+        <div
+          className={`${classes.editImageDetailsGrid} rounded-md bg-slate-400 p-4`}
+        >
           <div className={classes.titleLabel}>Title</div>
           <div className={classes.titleInput}>
             {editingTitle ? (
               <div className="flex items-center justify-center gap-4">
                 <input
-                  className={`${classes.titleInput} rounded-md pl-2 text-slate-700`}
+                  className={`${classes.titleInput} w-full rounded-md pl-2 text-slate-700`}
                   type="text"
                   placeholder="Optional"
                   value={editedImageData.title ?? "Loading..."}
@@ -56,20 +149,27 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                     setEditedImageData(newImageData);
                   }}
                 />
-                <FaTimes
-                  size={"1rem"}
+                <button
                   style={{ cursor: "pointer" }}
-                  onClick={() => setEditingTitle(false)}
-                />
+                  onClick={() => {
+                    const newImageData = { ...editedImageData };
+                    newImageData.title = image.title;
+                    setEditedImageData(newImageData);
+                    setEditingTitle(false);
+                  }}
+                >
+                  <FaTimes size={"1rem"} />
+                </button>
               </div>
             ) : (
               <div className="flex items-center justify-start gap-4">
                 {image.title}
-                <FaEdit
-                  size={"1rem"}
+                <button
                   style={{ cursor: "pointer" }}
                   onClick={() => setEditingTitle(true)}
-                />
+                >
+                  <FaEdit size={"1rem"} />
+                </button>
               </div>
             )}
           </div>
@@ -78,7 +178,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             {editingDescription ? (
               <div className="flex items-center justify-center gap-4">
                 <input
-                  className={`${classes.descriptionInput} rounded-md pl-2 text-slate-700`}
+                  className={`${classes.descriptionInput} w-full rounded-md pl-2 text-slate-700`}
                   type="text"
                   placeholder="Optional"
                   value={editedImageData.description ?? "Loading..."}
@@ -88,25 +188,45 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                     setEditedImageData(newImageData);
                   }}
                 />
-                <FaTimes
-                  size={"1rem"}
+                <button
                   style={{ cursor: "pointer" }}
-                  onClick={() => setEditingDescription(false)}
-                />
+                  onClick={() => {
+                    const newImageData = { ...editedImageData };
+                    newImageData.description = image.description;
+                    setEditedImageData(newImageData);
+                    setEditingDescription(false);
+                  }}
+                >
+                  <FaTimes size={"1rem"} />
+                </button>
               </div>
             ) : (
               <div className="flex items-center justify-start gap-4">
                 {image.description}
-                <FaEdit
-                  size={"1rem"}
+                <button
                   style={{ cursor: "pointer" }}
                   onClick={() => setEditingDescription(true)}
-                />
+                >
+                  <FaEdit size={"1rem"} />
+                </button>
               </div>
             )}
           </div>
           <div className={classes.folderLabel}>Folder</div>
-          <div className={classes.FolderDropdownInput}>{/* hold off */}</div>
+          <div className={classes.FolderDropdownInput}>
+            <CreateSelectable
+              isClearable
+              options={folderOptions}
+              getOptionLabel={(options) => options.title}
+              getOptionValue={(options) => options.id!} // may have to look at this again if a brand new folder is created
+              onChange={(newFolder: IFolderOptions | null) => {
+                setCurrentFolderForImage(newFolder);
+              }}
+              value={currentFolderForImage}
+              isDisabled={!session?.user?.id}
+              placeholder="Optional"
+            />
+          </div>
           <div className={classes.visibilityLabel}>Visibility</div>
           <div className={classes.visibilityDowndownInput}>
             <Select
@@ -121,19 +241,55 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   ? { label: "Public", value: true }
                   : { label: "Private", value: false }
               }
+              isDisabled={!session?.user?.id}
             />
           </div>
+          <div className={classes.dateCreatedLabel}>Date uploaded</div>
+          <div className={classes.dateCreatedValue}>
+            {image.createdAt.toLocaleDateString()}
+          </div>
+          <div className={classes.linkLabel}>Link</div>
+          <div className={classes.linkValue}>
+            {/* click to copy here */}
+            <a href={image.s3ImageURL} target="_blank" rel="noreferrer">
+              {image.s3ImageURL}
+            </a>
+          </div>
+
           <button
             className={`${classes.editButton} flex items-center justify-center gap-4`}
             onClick={() => setImageToBeEdited(editedImageData)}
           >
-            Edit
+            Edit image
             <FaCrop size={"1rem"} />
           </button>
-          <button className={classes.saveButton}>Save</button>
-          <div className={classes.closeButton}>
-            <FaTimes size={"2rem"} style={{ cursor: "pointer" }} />
-          </div>
+          <button
+            className={classes.saveButton}
+            disabled={
+              isEqual(image, editedImageData) &&
+              image.folderID === currentFolderForImage?.id // start with making this work
+                ? true
+                : false
+            }
+            onClick={() => {
+              // before updating, need to:
+              // check if new folder was created + needs to be .created -> get newId -> folderID: newId
+              if (
+                currentFolderForImage &&
+                typeof currentFolderForImage.id === "undefined" &&
+                session?.user?.id
+              ) {
+                createFolder.mutate({
+                  title: currentFolderForImage.title,
+                  userID: session.user.id,
+                });
+              } else {
+                setReadyToUpdate(true);
+              }
+            }}
+          >
+            Save
+          </button>
         </div>
 
         <Image
@@ -142,6 +298,12 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           width={500}
           height={500}
         />
+        <div
+          className="absolute top-2 right-2 transition hover:opacity-50"
+          onClick={() => setImageBeingEdited(undefined)}
+        >
+          <FaTimes size={"2rem"} style={{ cursor: "pointer" }} />
+        </div>
       </div>
 
       {/* <DynamicHeader
