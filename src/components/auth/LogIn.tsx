@@ -28,7 +28,7 @@ function LogIn() {
           opacity: showModal ? 1 : 0,
           pointerEvents: showModal ? "auto" : "none",
         }}
-        className="absolute top-0 left-0 flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-slate-800 transition-all"
+        className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-slate-800 transition-all"
       >
         <div className="flex flex-col items-center justify-center gap-4 rounded-md bg-slate-400/75 p-10">
           <form className="flex flex-col items-center justify-center gap-4">
