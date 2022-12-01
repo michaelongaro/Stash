@@ -3,10 +3,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 20px;
   border-width: 2px;
-  width: 50%;
-  border-radius: 2px;
   border-color: #eeeeee;
   border-style: dashed;
   background-color: #fafafa;

@@ -1,3 +1,4 @@
+import isEqual from "lodash.isequal";
 import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import formatBytes from "../../utils/formatBytes";
@@ -12,32 +13,70 @@ export interface IImage {
   size: string;
 }
 
-function DragAndDrop() {
-  const [files, setFiles] = useState<IImage[]>([]);
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+interface IDragAndDrop {
+  containerWidth: string;
+  containerHeight: string;
+  containerBorderRadius: string;
+  dragAndDropWidth: string;
+  dragAndDropHeight: string;
+  files: IImage[];
+  setFiles: React.Dispatch<React.SetStateAction<IImage[]>>;
+  usedInReviewModal: boolean;
+}
+
+function DragAndDrop({
+  containerWidth,
+  containerHeight,
+  containerBorderRadius,
+  dragAndDropWidth,
+  dragAndDropHeight,
+  files,
+  setFiles,
+  usedInReviewModal,
+}: IDragAndDrop) {
+  const [borderColor, setBorderColor] = useState<string>("#eeeeee");
+  const [imagesHaveBeenAdded, setImagesHaveBeenAdded] =
+    useState<boolean>(false);
+  const {
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+    acceptedFiles,
+  } = useDropzone({
     accept: {
       "image/*": [],
     },
+    maxSize: 157286400, // 150MB
     multiple: true,
-
-    // not sure if below is even necessary
-
-    // onDrop: (acceptedFiles) => {
-    //   setFiles(
-    //     acceptedFiles.map((file) =>
-    //       Object.assign(file, {
-    //         preview: URL.createObjectURL(file), // probably need this
-    //       })
-    //     )
-    //   );
-    // },
   });
 
-  // console.log(acceptedFiles, acceptedFiles.length);
+  useEffect(() => {
+    if (isFocused) {
+      setBorderColor("#2196f3");
+    } else if (isDragAccept) {
+      setBorderColor("#00e676");
+    } else if (isDragReject) {
+      setBorderColor("#ff1744");
+    } else {
+      setBorderColor("#eeeeee");
+    }
+  }, [isFocused, isDragAccept, isDragReject]);
+
+  // This causes infinite loop... start here
 
   useEffect(() => {
     if (acceptedFiles.length > 0) {
-      const newFiles: IImage[] = [];
+      setImagesHaveBeenAdded(true);
+    }
+  }, [acceptedFiles]);
+
+  useEffect(() => {
+    console.log(acceptedFiles);
+
+    if (acceptedFiles.length > 0 && imagesHaveBeenAdded) {
+      const newFiles: IImage[] = [...files];
       acceptedFiles.map((file) => {
         newFiles.push({
           imageFile: file,
@@ -49,20 +88,42 @@ function DragAndDrop() {
         });
       });
 
-      setFiles(newFiles);
+      if (!isEqual(files, newFiles)) {
+        setFiles(newFiles);
+        setImagesHaveBeenAdded(false);
+      }
     }
-  }, [acceptedFiles]);
+  }, [acceptedFiles, files, imagesHaveBeenAdded]);
+
+  // if designated as used in modal:
+  // then just do above then setFiles(oldFiles => [...oldFiles, newFiles])
 
   return (
     // leave as a "section" tag?
-    <section className="container flex h-20 min-w-full items-center justify-center bg-slate-300">
-      <div {...getRootProps({ className: classes.dropzone })}>
+    <section
+      style={{
+        minWidth: containerWidth,
+        height: containerHeight,
+        borderRadius: containerBorderRadius,
+      }}
+      className={`container flex items-center justify-center rounded-md bg-slate-300`}
+    >
+      <div
+        style={{
+          width: dragAndDropWidth,
+          height: dragAndDropHeight,
+          borderColor: borderColor,
+        }}
+        {...getRootProps({ className: classes.dropzone })}
+      >
         <input {...getInputProps()} />
-        <p>Drag + drop your image file(s) here, or click to select files</p>
+        {/* replace "click" with <HiOutlineCursorClick /> */}
+        <p>Drag + drop your image(s) here, or click to manually select</p>
+        <p>- Size limit: 150MB -</p>
       </div>
 
-      {/* move basically everything to context at a later point */}
-      {files.length > 0 && (
+      {files.length > 0 && !usedInReviewModal && (
+        // pass through setter (to be able to remove a file from being in upload queue)
         <ImageReviewModal files={files} setFiles={setFiles} />
       )}
     </section>
