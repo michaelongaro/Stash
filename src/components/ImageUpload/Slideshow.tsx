@@ -43,9 +43,10 @@ function Slideshow({ files, setIndex }: IFileProps) {
       </button>
     ),
 
+    indicators: true,
     infinite: true,
 
-    onChange: (next: number) => {
+    onChange: (prev: number, next: number) => {
       setIndex(next);
     },
   };

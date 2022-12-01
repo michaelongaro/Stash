@@ -46,6 +46,10 @@
   border-radius: 1em;
 }
 
+.indicators {
+  gap: .25rem;
+}
+
 @media (max-width: 600px) {
   .react-slideshow-container {
     width: 70%;
