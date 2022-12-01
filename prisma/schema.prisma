@@ -7,13 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Guestbook {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  name      String
-  message   String   @db.VarChar(100)
-}
-
 model Image {
   id            String   @id @default(cuid())
   createdAt     DateTime @default(now())
@@ -24,8 +17,8 @@ model Image {
   description   String?  @db.VarChar(150)
   folder        Folder?  @relation(fields: [folderID], references: [id])
   folderID      String?
-  user          User?    @relation(fields: [userID], references: [id])
-  userID        String?
+  user          User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID        String
 }
 
 model Folder {
@@ -33,8 +26,8 @@ model Folder {
   title       String  @db.VarChar(100)
   description String?
   images      Image[]
-  user        User?   @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID      String?
+  user        User    @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID      String
 }
 
 // Necessary for Next auth
