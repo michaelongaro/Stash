@@ -28,6 +28,7 @@ function SharedImage() {
     <>
       {userQuery && (
         <img
+          className="m-auto h-[100vh]"
           src={userQuery.data?.s3ImageURL}
           alt={userQuery.data?.title ?? "image retrieved from aws s3 database"}
         />
