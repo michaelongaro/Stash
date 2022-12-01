@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { type Image as IImage } from "@prisma/client";
 import { useSession } from "next-auth/react";
 
-import { FaTimes, FaEdit, FaCrop } from "react-icons/fa";
+import { FaTimes, FaEdit, FaCrop, FaTrash } from "react-icons/fa";
 
 import isEqual from "lodash.isequal";
 
@@ -76,8 +76,24 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
       if (optimisticUpdate) {
         utils.images.getUserImages.setData(optimisticUpdate);
       }
-
+    },
+    onSuccess() {
       setImageBeingEdited(undefined);
+    },
+    onSettled: () => {
+      utils.images.getUserImages.invalidate();
+      setImageBeingEdited(undefined);
+    },
+  });
+
+  const deleteImage = trpc.images.deleteImage.useMutation({
+    onMutate: () => {
+      utils.images.getUserImages.cancel();
+      const optimisticUpdate = utils.images.getUserImages.getData();
+
+      if (optimisticUpdate) {
+        utils.images.getUserImages.setData(optimisticUpdate);
+      }
     },
     onSuccess() {
       setImageBeingEdited(undefined);
@@ -223,7 +239,6 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 setCurrentFolderForImage(newFolder);
               }}
               value={currentFolderForImage}
-              isDisabled={!session?.user?.id}
               placeholder="Optional"
             />
           </div>
@@ -289,6 +304,18 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             }}
           >
             Save
+          </button>
+          <button
+            className={`${classes.deleteButton} flex items-center justify-center gap-4`}
+            // should have a modal pop up that says "are you sure you want to delete this image?"
+            onClick={() =>
+              deleteImage.mutate({
+                id: image.id,
+              })
+            }
+          >
+            Delete image
+            <FaTrash size={"1rem"} />
           </button>
         </div>
 
