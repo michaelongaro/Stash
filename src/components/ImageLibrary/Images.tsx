@@ -11,9 +11,9 @@ function Images() {
   const { data: session, status } = useSession();
 
   const { data: images, isLoading: isLoadingImages } =
-    trpc.images.getUserImages.useQuery();
+    trpc.images.getUserImages.useQuery(localStorage.getItem("userID"));
   const { data: folders, isLoading: isLoadingFolders } =
-    trpc.images.getUserFolders.useQuery();
+    trpc.images.getUserFolders.useQuery(localStorage.getItem("userID"));
 
   const [imageBeingEdited, setImageBeingEdited] = useState<Image>();
 
@@ -26,7 +26,7 @@ function Images() {
     <div>
       {folders && <div>folders coming soon!</div>}
       {images && (
-        <div className="grid grid-cols-5 grid-rows-4 gap-4">
+        <div className="m-4 grid grid-cols-5 grid-rows-4 gap-4">
           {images.map((image) => {
             return (
               <UploadedImage
