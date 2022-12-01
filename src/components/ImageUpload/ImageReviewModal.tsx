@@ -5,13 +5,15 @@ import { useSession } from "next-auth/react";
 import DragAndDrop, { type IImage } from "./DragAndDrop";
 import Slideshow from "./Slideshow";
 import dynamic from "next/dynamic";
-import Select, { ActionMeta } from "react-select";
+import Select from "react-select";
 import CreateSelectable from "react-select/creatable";
 
 import classes from "./ImageReviewModal.module.css";
 import ImageEditorModal from "./ImageEditorModal";
 import UploadProgressModal from "./UploadProgressModal";
 import { trpc } from "../../utils/trpc";
+import isEqual from "lodash.isequal";
+import { FaTrash } from "react-icons/fa";
 
 interface IFileProps {
   files: IImage[];
@@ -61,18 +63,47 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
   useEffect(() => {
     if (files.length > 0) {
-      const newImageData: IFile[] = [];
-      files.map((file) => {
-        newImageData.push({
-          image: file,
-          title: "",
-          description: "",
-          isPublic: true,
-        });
+      // maybe have && files.length !== imageData.length ?
+      const newImageData: IFile[] = [...imageData];
+      files.map((file, idx) => {
+        if (!isEqual(imageData[idx]?.image, file)) {
+          newImageData.push({
+            image: file,
+            title: "",
+            description: "",
+            isPublic: true,
+          });
+        }
       });
-      setImageData(newImageData);
+      if (!isEqual(imageData, newImageData)) {
+        setImageData(newImageData); // might still be source of infinite rerender
+      }
     }
-  }, [files]);
+  }, [files, imageData]);
+
+  // useEffect(() => {
+  // probably should make this block below a function so that it can just be called
+
+  // rough idea would be like:
+
+  // if (files.length > 0 && additionalFiles.length === 0)
+  // then call funciton with files
+  // otherwise call with additionalFiles   definitely have to smooth that over
+
+  //   if (filesUploadedFromModal.length > 0) {
+  //     const currentFiles = [...imageData];
+  //     filesUploadedFromModal.map((file) => {
+  //       currentFiles.push({
+  //         image: file,
+  //         title: "",
+  //         description: "",
+  //         isPublic: true,
+  //       });
+  //     });
+  //     setImageData(currentFiles);
+
+  //   }
+  // }, [filesUploadedFromModal])
 
   useEffect(() => {
     if (allUserFolders && allUserFolders.length > 0) {
@@ -117,7 +148,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             className={classes.upload}
             onClick={() => setStartUploadOfImages(true)}
           >
-            Upload
+            {`Upload${files.length > 1 && " all"}`}
           </button>
           <div className={classes.slideshow}>
             <Slideshow files={files} index={index} setIndex={setIndex} />
@@ -154,6 +185,22 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
               setImageData(newImageData);
             }}
           />
+
+          <button
+            className={`${classes.removeImageFromUploadButton} flex items-center justify-center gap-2`}
+            onClick={() => {
+              setFiles((currentFiles) =>
+                currentFiles.filter((value, i) => i !== index)
+              );
+              setImageData((currentImageData) =>
+                currentImageData.filter((value, i) => i !== index)
+              );
+            }}
+          >
+            <FaTrash size={"1rem"} />
+            Remove image from upload
+          </button>
+
           <div className={classes.folderLabel}>Folder</div>
           <div className={classes.folderDropdown}>
             <CreateSelectable
@@ -174,7 +221,6 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
                 setImageData(newImageData);
               }}
               value={imageData[index]?.folder}
-              isDisabled={!session?.user?.id}
               placeholder="Optional"
             />
           </div>
@@ -200,8 +246,17 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           i think it is -1 0 1 so might have to do some quirky logic */}
           <button className={classes.previousButton}>Prev</button>
           <div className={classes.dragAndDropUpload}>
-            {/* this is a jhinception! will have to catch and handle any new images differently */}
-            <DragAndDrop />
+            <DragAndDrop
+              // maybe need a key here?
+              containerWidth={"100%"}
+              containerHeight={"100%"}
+              containerBorderRadius={"0.375rem"}
+              dragAndDropWidth={"95%"}
+              dragAndDropHeight={"90%"}
+              files={files}
+              setFiles={setFiles}
+              usedInReviewModal={true}
+            />
           </div>
           <button className={classes.nextButton}>Next</button>
         </div>
