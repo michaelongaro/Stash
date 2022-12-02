@@ -49,6 +49,7 @@ function Images() {
       }
     },
     onSuccess() {
+      setSelectedFolder(temporaryFolderData);
       setEditingFolderData(false);
     },
     onSettled: () => {
