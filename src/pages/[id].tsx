@@ -13,20 +13,23 @@ function SharedImage() {
     queryID = router.query.id;
   }
   const userQuery = trpc.images.retrieveImage.useQuery(queryID ?? "nothing");
-  let unauthorizedToViewImage = false;
+  const [unauthorizedToViewImage, setUnauthorizedToViewImage] =
+    useState<boolean>(false);
 
-  if (userQuery?.data) {
-    if (
-      userQuery?.data?.isPublic &&
-      userQuery?.data?.userID !== session?.user?.id
-    ) {
-      unauthorizedToViewImage = true;
+  useEffect(() => {
+    if (userQuery?.data) {
+      if (
+        !userQuery?.data?.isPublic &&
+        userQuery?.data?.userID !== session?.user?.id
+      ) {
+        setUnauthorizedToViewImage(true);
+      }
     }
-  }
+  }, [userQuery]);
 
   return (
-    <>
-      {userQuery && (
+    <div className="flex h-[100vh] items-center justify-center">
+      {userQuery && !unauthorizedToViewImage && (
         <img
           className="m-auto h-[100vh]"
           src={userQuery.data?.s3ImageURL}
@@ -35,9 +38,11 @@ function SharedImage() {
       )}
 
       {unauthorizedToViewImage && (
-        <div>You do not have access to view this image.</div>
+        <div className="rounded-md bg-slate-200 p-4 text-3xl text-blue-700">
+          You do not have access to view this image.
+        </div>
       )}
-    </>
+    </div>
   );
 }
 
