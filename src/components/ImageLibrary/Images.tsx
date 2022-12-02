@@ -58,7 +58,7 @@ function Images() {
     },
   });
 
-  const deleteFolder = trpc.images.deleteImage.useMutation({
+  const deleteFolder = trpc.images.deleteFolder.useMutation({
     onMutate: () => {
       utils.images.getUserFolders.cancel();
       const optimisticUpdate = utils.images.getUserFolders.getData();
