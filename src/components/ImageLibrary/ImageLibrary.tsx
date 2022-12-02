@@ -7,15 +7,16 @@ function ImageLibrary() {
   const [files, setFiles] = useState<IImage[]>([]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col items-center gap-2">
       <Navbar />
 
       <DragAndDrop
-        containerWidth={"100vw"}
+        containerWidth={"85vw"}
         containerHeight={"85px"}
-        containerBorderRadius={"0"}
+        containerBorderRadius={"0.375rem"}
         dragAndDropWidth={"50%"}
         dragAndDropHeight={"90%"}
+        dragAndDropBorderRadius={"0.375rem"}
         files={files}
         setFiles={setFiles}
         usedInReviewModal={false}
