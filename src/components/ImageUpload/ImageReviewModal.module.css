@@ -1,11 +1,11 @@
 .modalGrid {
   display: grid;
-  grid-template-columns: .1fr 0.7fr .1fr .1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 20fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.1fr 0.5fr 0.2fr 0.2fr;
+  grid-template-rows: 5fr 1fr 1fr 1fr 20fr 5fr 1fr 1fr 1fr;
   gap: 16px 16px;
   grid-auto-flow: row;
   grid-template-areas:
-    "preview imageNumbers edit upload"
+    "preview imageNumbers editButton upload"
     "slideshow slideshow filenameLabel filename"
     "slideshow slideshow lastModifiedLabel lastModified"
     "slideshow slideshow fileSizeLabel fileSize"
@@ -16,9 +16,30 @@
     "previousButton dragAndDropUpload dragAndDropUpload nextButton";
   width: 75vw;
   height: 90vh;
-  background-color: hsl(217, 33%, 57%);
   border-radius: 0.5rem;
   padding: 2rem;
+  overflow-y: scroll;
+}
+
+@media (max-width: 1300px) {
+  .modalGrid {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 5fr 1fr 1fr 1fr 1fr 3fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas:
+      "upload upload upload upload"
+      "preview imageNumbers . ."
+      "slideshow slideshow slideshow slideshow"
+      "filenameLabel filename filename filename"
+      "lastModifiedLabel lastModified lastModified lastModified"
+      "fileSizeLabel fileSize fileSize fileSize"
+      "editButton editButton removeImageFromUploadButton removeImageFromUploadButton"
+      "titleLabel titleInput titleInput titleInput"
+      "descriptionLabel descriptionInput descriptionInput descriptionInput"
+      "folderLabel folderDropdown folderDropdown folderDropdown"
+      "visibilityLabel visibilityDropdown visibilityDropdown visibilityDropdown"
+      "dragAndDropUpload dragAndDropUpload dragAndDropUpload dragAndDropUpload"
+      "previousButton previousButton nextButton nextButton";
+  }
 }
 
 /* add these to HTML later */
@@ -36,8 +57,8 @@
   grid-area: imageNumbers;
 }
 
-.edit {
-  grid-area: edit;
+.editButton {
+  grid-area: editButton;
 }
 
 .upload {
