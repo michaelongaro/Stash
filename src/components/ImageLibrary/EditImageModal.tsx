@@ -144,18 +144,18 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         opacity: image ? 1 : 0,
         pointerEvents: image ? "auto" : "none",
       }}
-      className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-slate-800 transition-all"
+      className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
     >
-      <div className="relative flex max-w-[95vw] flex-col items-center justify-center gap-4 rounded-md bg-slate-400/75 p-10">
+      <div className="relative m-6 flex max-h-[95vh] max-w-[85vw] flex-col items-center justify-start gap-4 overflow-y-scroll rounded-md bg-blue-400/90 p-10">
         <div
-          className={`${classes.editImageDetailsGrid} rounded-md bg-slate-400 p-4`}
+          className={`${classes.editImageDetailsGrid} rounded-md bg-blue-300 p-4`}
         >
           <div className={classes.titleLabel}>Title</div>
           <div className={classes.titleInput}>
             {editingTitle ? (
               <div className="flex items-center justify-center gap-4">
                 <input
-                  className={`${classes.titleInput} w-full rounded-md pl-2 text-slate-700`}
+                  className={`${classes.titleInput} w-full rounded-md pl-2 `}
                   type="text"
                   placeholder="Optional"
                   value={editedImageData.title ?? "Loading..."}
@@ -166,7 +166,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   }}
                 />
                 <button
-                  style={{ cursor: "pointer" }}
+                  className="secondaryBtn"
                   onClick={() => {
                     const newImageData = { ...editedImageData };
                     newImageData.title = image.title;
@@ -181,7 +181,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               <div className="flex items-center justify-start gap-4">
                 {image.title}
                 <button
-                  style={{ cursor: "pointer" }}
+                  className="secondaryBtn"
                   onClick={() => setEditingTitle(true)}
                 >
                   <FaEdit size={"1rem"} />
@@ -194,7 +194,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             {editingDescription ? (
               <div className="flex items-center justify-center gap-4">
                 <input
-                  className={`${classes.descriptionInput} w-full rounded-md pl-2 text-slate-700`}
+                  className={`${classes.descriptionInput} w-full rounded-md pl-2 `}
                   type="text"
                   placeholder="Optional"
                   value={editedImageData.description ?? "Loading..."}
@@ -205,7 +205,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   }}
                 />
                 <button
-                  style={{ cursor: "pointer" }}
+                  className="secondaryBtn"
                   onClick={() => {
                     const newImageData = { ...editedImageData };
                     newImageData.description = image.description;
@@ -220,7 +220,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               <div className="flex items-center justify-start gap-4">
                 {image.description}
                 <button
-                  style={{ cursor: "pointer" }}
+                  className="secondaryBtn"
                   onClick={() => setEditingDescription(true)}
                 >
                   <FaEdit size={"1rem"} />
@@ -272,14 +272,14 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </div>
 
           <button
-            className={`${classes.editButton} flex items-center justify-center gap-4`}
+            className={`${classes.editButton} secondaryBtn flex items-center justify-center gap-4`}
             onClick={() => setImageToBeEdited(editedImageData)}
           >
             Edit image
             <FaCrop size={"1rem"} />
           </button>
           <button
-            className={classes.saveButton}
+            className={`${classes.saveButton} primaryBtn`}
             disabled={
               isEqual(image, editedImageData) &&
               image.folderID === currentFolderForImage?.id // start with making this work
@@ -306,7 +306,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             Save
           </button>
           <button
-            className={`${classes.deleteButton} flex items-center justify-center gap-4`}
+            className={`${classes.deleteButton} dangerBtn flex items-center justify-center gap-4`}
             // should have a modal pop up that says "are you sure you want to delete this image?"
             onClick={() =>
               deleteImage.mutate({
