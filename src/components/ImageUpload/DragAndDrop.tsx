@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import formatBytes from "../../utils/formatBytes";
 
+import { HiOutlineCursorClick } from "react-icons/hi";
+
 import classes from "./DragAndDrop.module.css";
 import ImageReviewModal from "./ImageReviewModal";
 
@@ -19,6 +21,7 @@ interface IDragAndDrop {
   containerBorderRadius: string;
   dragAndDropWidth: string;
   dragAndDropHeight: string;
+  dragAndDropBorderRadius: string;
   files: IImage[];
   setFiles: React.Dispatch<React.SetStateAction<IImage[]>>;
   usedInReviewModal: boolean;
@@ -30,6 +33,7 @@ function DragAndDrop({
   containerBorderRadius,
   dragAndDropWidth,
   dragAndDropHeight,
+  dragAndDropBorderRadius,
   files,
   setFiles,
   usedInReviewModal,
@@ -60,7 +64,7 @@ function DragAndDrop({
     } else if (isDragReject) {
       setBorderColor("#ff1744");
     } else {
-      setBorderColor("#eeeeee");
+      setBorderColor("#bfbfbf");
     }
   }, [isFocused, isDragAccept, isDragReject]);
 
@@ -103,22 +107,29 @@ function DragAndDrop({
     <section
       style={{
         minWidth: containerWidth,
+        maxWidth: containerWidth,
         height: containerHeight,
         borderRadius: containerBorderRadius,
       }}
-      className={`container flex items-center justify-center rounded-md bg-slate-300`}
+      className={`container flex items-center justify-center rounded-md bg-blue-300`}
     >
       <div
         style={{
-          width: dragAndDropWidth,
+          minWidth: dragAndDropWidth,
+          maxWidth: dragAndDropWidth,
           height: dragAndDropHeight,
           borderColor: borderColor,
+          borderRadius: dragAndDropBorderRadius,
         }}
         {...getRootProps({ className: classes.dropzone })}
       >
         <input {...getInputProps()} />
         {/* replace "click" with <HiOutlineCursorClick /> */}
-        <p>Drag + drop your image(s) here, or click to manually select</p>
+        <p className="flex items-center justify-center gap-2">
+          Drag + drop your image(s) here, or
+          <HiOutlineCursorClick size={"1.25rem"} />
+          to manually select
+        </p>
         <p>- Size limit: 150MB -</p>
       </div>
 
