@@ -202,7 +202,7 @@ function Images() {
       )}
 
       {imagesToShow && (
-        <div className="m-6 grid grid-cols-5 grid-rows-4 gap-4">
+        <div className="m-6 grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {imagesToShow.map((image) => {
             return (
               <UploadedImage
