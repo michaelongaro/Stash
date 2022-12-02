@@ -8,6 +8,8 @@ import { type IFile } from "./ImageReviewModal";
 import { type IImage } from "./DragAndDrop";
 import { useSession } from "next-auth/react";
 
+import classes from "./UploadProgressModal.module.css";
+
 const config = {
   bucketName: "stash-resources",
   region: "us-east-2",
@@ -43,8 +45,16 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
     if (session?.user?.id) setCurrentUserID(session.user.id);
   }, [session]);
 
+  // temporary:
+  useEffect(() => {
+    if (files.length > 0) {
+      document.body.style.overflow = "hidden";
+    }
+  }, [files]);
+
   // destroys component when all images are inside the database
-  if (numImagesInsertedIntoDatabase === files.length) {
+  if (numImagesInsertedIntoDatabase === files.length && files.length !== 0) {
+    document.body.style.overflow = "auto";
     setFiles([]);
   }
 
@@ -178,10 +188,16 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
     }
   }, [s3URLs, files, currentUserID]);
 
-  // have this run for a certain amount of time, or when all files are fully uploaded to db
-  // whichever comes first
-
-  return <div>Uploading...</div>;
+  return (
+    <div className="flex flex-col items-center justify-center gap-8">
+      <div className={classes.ripple}>
+        <div>
+          <div></div>
+        </div>
+      </div>
+      Uploading
+    </div>
+  );
 }
 
 export default UploadProgressModal;
