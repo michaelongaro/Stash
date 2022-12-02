@@ -33,12 +33,6 @@ const config = {
         port: "",
         pathname: "**",
       },
-      {
-        protocol: "https",
-        hostname: "www.pngitem.com",
-        port: "",
-        pathname: "**",
-      },
     ],
   },
 };
