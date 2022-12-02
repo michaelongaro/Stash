@@ -29,15 +29,9 @@ export const imagesRouter = router({
     .query(async ({ ctx, input }) => {
       try {
         return await ctx.prisma.folder.findMany({
-          select: {
-            title: true,
-            id: true,
-          },
           where: {
             userID: ctx.session?.user?.id ?? input ?? "userID not found", // change later
-          }, // FIRST, find way to test this
-          // SECOND, need to add localStorage.get("userID") to all
-          // occurances of session.user.id basically
+          },
         });
       } catch (error) {
         console.log("error", error);
@@ -50,6 +44,15 @@ export const imagesRouter = router({
       },
     });
   }),
+  retrieveImageFromFolder: publicProcedure
+    .input(z.string())
+    .query(({ ctx, input }) => {
+      return ctx.prisma.image.findMany({
+        where: {
+          folderID: input,
+        },
+      });
+    }),
   addImage: publicProcedure
     .input(
       z.object({
@@ -100,6 +103,45 @@ export const imagesRouter = router({
         console.log(error);
       }
     }),
+  updateFolderData: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        description: z.string().optional().nullish(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.folder.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            ...input,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+  deleteFolder: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.folder.delete({
+          where: {
+            id: input.id,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }),
   transferUnregisteredUserDataToRealUserData: publicProcedure
     .input(
       z.object({
@@ -113,6 +155,8 @@ export const imagesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      console.log("user data was:", ctx.session?.user, input);
+
       try {
         // copying over all data from newly signed in user besides its cuid
 
