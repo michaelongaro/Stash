@@ -148,7 +148,7 @@ function UploadedImage({ image, setImageBeingEdited }: IUploadedImage) {
           className="secondaryBtn"
           onClick={() =>
             navigator.clipboard.writeText(
-              `http://localhost:3000/${image.randomizedURL}`
+              `${process.env.VERCEL_URL}${image.randomizedURL}`
             )
           }
         >
