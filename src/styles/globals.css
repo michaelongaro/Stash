@@ -3,24 +3,135 @@
 @tailwind utilities;
 
 body {
-  @apply bg-neutral-900 text-neutral-100;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2360a5fa' fill-opacity='0.61'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-button {
-  padding: 11px 16px;
+div {
+  color: #eff6ff
+}
+
+input {
+  color: #1e3a8a
+}
+
+.primaryBtn,
+.secondaryBtn,
+.dangerBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 6px;
+  font-size: inherit;
+  line-height: 1.42;
+  padding: 0.6em 1.6em;
+  font-weight: normal;
+  border-width: 2px;
+  border-style: solid;
+  background: transparent;
+  border-radius: 0.375rem;
   cursor: pointer;
-  border-width: 1px;
-  border-radius: 2px;
-  font-size: 14px;
-  font-weight: 400;
-  color: #3e64ff;
-  border-radius: .5rem;
-  border-color: #3e64ff;
-  transition: all 150ms;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+  border-style: solid;
+  overflow: hidden;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-button:hover {
-  color: #fff;
-  background: #3e64ff !important;
-  border-color: #3e64ff !important;
+.primaryBtn:after,
+.secondaryBtn:after,
+.dangerBtn:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  border-radius: 1.25rem;
+  transform: scaleX(0.7);
+  opacity: 0;
+  transition: transform 0.8s, opacity 0.3s;
 }
+
+.primaryBtn {
+  color: white;
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.primaryBtn:after {
+  background-color: #1d4ed8;
+}
+
+.primaryBtn:hover:after {
+  transform: scaleX(1);
+  opacity: 1;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.primaryBtn:hover {
+  color: #e6eaef;
+  background-color: #265ae9;
+}
+
+.primaryBtn:active {
+  background-color: #1e3a8a;
+}
+
+.secondaryBtn {
+  color: rgb(30 64 175);
+  background-color: rgb(191 219 254);
+  border-color: rgb(191 219 254);
+}
+
+.secondaryBtn:after {
+  background-color: rgb(30 64 175);
+}
+
+.secondaryBtn:hover:after {
+  transform: scaleX(1);
+  opacity: 1;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.secondaryBtn:hover {
+  color: #e6eaef;
+  background-color: rgb(30 64 175);
+}
+
+.secondaryBtn:active {
+  background-color: rgb(13, 40, 128);
+}
+
+/* maybe make slightly diff secondaryBtn with less padding horizontally? */
+
+.dangerBtn {
+  color: #fb7185;
+  background-color: #fae9eb;
+  border-color: #fb7185;
+}
+
+.dangerBtn:after {
+  background-color: #fb7185;
+}
+
+.dangerBtn:hover:after {
+  transform: scaleX(1);
+  opacity: 1;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.dangerBtn:hover {
+  color: #e6eaef;
+  background-color: #fb7185;
+}
+
+.dangerBtn:active {
+  background-color: #99062b;
+  border-color: #99062b;
+}
+
+/* also have a disabled one? */
