@@ -69,7 +69,8 @@ const Home = () => {
   }, [session, localStorageUserID, images]);
 
   if (status === "loading") {
-    return <main className="flex flex-col items-center pt-4">Loading...</main>;
+    // return <main className="flex flex-col items-center pt-4">Loading...</main>;
+    return <></>;
   }
 
   return (
