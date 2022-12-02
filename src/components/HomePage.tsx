@@ -9,20 +9,29 @@ function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8">
-      <h1 className="text-3xl">Stash</h1>
-      {/* maybe have a dynamic part before photos that slides text vertically
+      <div className="flex flex-col items-center justify-center gap-8 rounded-md bg-blue-200 p-4">
+        <h1 className="justify-baseline flex items-center gap-[0.2rem] text-5xl text-blue-400">
+          St
+          <div className="translate-y-[5px] rotate-180 text-blue-700">v</div>
+          sh
+        </h1>
+        {/* maybe have a dynamic part before photos that slides text vertically
       saying like vacation, homework, private idk shouldn't be too hard, maybe there is
       library for it already */}
-      <h3>your personal vault for all of your photos</h3>
+        <h2 className="text-blue-500">
+          your personal vault for all of your photos
+        </h2>
+      </div>
 
-      <LogIn />
+      <LogIn gap={"1.5rem"} />
 
       <DragAndDrop
-        containerWidth={"30vw"}
+        containerWidth={"30vw"} // make responsive
         containerHeight={"150px"}
         containerBorderRadius={"0.375rem"}
-        dragAndDropWidth={"95%"}
+        dragAndDropWidth={"98%"}
         dragAndDropHeight={"90%"}
+        dragAndDropBorderRadius={"0.375rem"}
         files={files}
         setFiles={setFiles}
         usedInReviewModal={false}
