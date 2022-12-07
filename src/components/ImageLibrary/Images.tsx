@@ -91,7 +91,7 @@ function Images() {
   if (isLoadingImages || isLoadingFolders) return <></>;
 
   return (
-    <div className="mt-2 min-w-[85vw]">
+    <div className="mt-2 w-[85vw]">
       {folders && userImages && (
         <div className="rounded-md bg-blue-500 p-2">
           {selectedFolder ? (
@@ -202,7 +202,7 @@ function Images() {
       )}
 
       {imagesToShow && (
-        <div className="m-6 grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="m-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           {imagesToShow.map((image) => {
             return (
               <UploadedImage
