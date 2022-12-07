@@ -32,14 +32,25 @@
   margin: auto;
 }
 
-.react-slideshow-container .default-nav:last-of-type {
-  margin-left: -35px;
+.react-slideshow-container .nav:last-of-type {
+  right: 5px !important
 }
 
-.react-slideshow-container .default-nav:first-of-type {
-  margin-right: -35px;
+.react-slideshow-container .nav:first-of-type {
+  left: 5px !important;
   border-right: 0;
   border-top: 0;
+}
+
+.nav {
+  border-radius: 50%;
+  padding: .05rem;
+  transition: all 150ms;
+}
+
+.nav:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: .25rem;
 }
 
 .images-wrap>div>div>img {
