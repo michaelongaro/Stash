@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { useSession } from "next-auth/react";
 
 import DragAndDrop, { type IImage } from "./DragAndDrop";
-import Slideshow from "./Slideshow";
+import { Slideshow } from "./Slideshow";
+import { type SlideshowRef } from "react-slideshow-image";
 import dynamic from "next/dynamic";
 import Select from "react-select";
-import CreateSelectable from "react-select/creatable";
 
 import classes from "./ImageReviewModal.module.css";
-import ImageEditorModal from "./ImageEditorModal";
 import UploadProgressModal from "./UploadProgressModal";
 import { trpc } from "../../utils/trpc";
 import isEqual from "lodash.isequal";
 import { FaCrop, FaTimes, FaTrash } from "react-icons/fa";
+import CreateableFolderDropdown from "./CreateableFolderDropdown";
 
 interface IFileProps {
   files: IImage[];
@@ -33,7 +33,7 @@ export interface IFolderOptions {
   id?: string;
 }
 
-interface ICreateSelectableOptions {
+export interface ICreateSelectableOptions {
   // workaround for CreateSelectable type issues
   value?: string;
   label: string;
@@ -70,6 +70,8 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
     useState<boolean>(false);
 
   const [imageToBeEdited, setImageToBeEdited] = useState<File>();
+
+  const slideRef = useRef<SlideshowRef>(null);
 
   useEffect(() => {
     if (files.length > 0) {
@@ -108,6 +110,24 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
     }
   }, [allUserFolders]);
 
+  const changeIndex = (moveForwardInArray: boolean) => {
+    if (moveForwardInArray) {
+      if (index < imageData.length - 1) {
+        setIndex((currentIndex) => currentIndex + 1);
+      } else {
+        setIndex(0);
+      }
+      slideRef.current?.goNext();
+    } else {
+      if (index > 0) {
+        setIndex((currentIndex) => currentIndex - 1);
+      } else {
+        setIndex(imageData.length - 1);
+      }
+      slideRef.current?.goBack();
+    }
+  };
+
   return (
     <div
       style={{
@@ -141,7 +161,12 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             {`Upload${files.length > 1 ? " all" : ""}`}
           </button>
           <div className={classes.slideshow}>
-            <Slideshow files={files} index={index} setIndex={setIndex} />
+            <Slideshow
+              ref={slideRef}
+              files={files}
+              index={index}
+              setIndex={setIndex}
+            />
           </div>
           <div className={classes.filenameLabel}>Name</div>
           <div className={classes.filename}>{imageData[index]?.image.name}</div>
@@ -193,45 +218,14 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
           <div className={classes.folderLabel}>Folder</div>
           <div className={classes.folderDropdown}>
-            <CreateSelectable
-              isClearable
-              styles={{
-                option: (baseStyles, state) => ({
-                  ...baseStyles,
-                  color: "#1e3a8a",
-                }),
-              }}
-              options={folderOptions}
-              onChange={(newFolder) => {
-                if (newFolder?.label) {
-                  const newImageData = [...imageData];
-                  newImageData[index]!.folder = {
-                    title: newFolder.label,
-                    id:
-                      newFolder.value !== newFolder.label
-                        ? newFolder.value
-                        : undefined,
-                  };
-                  setImageData(newImageData);
-
-                  const newFolderData = [...createSelectableFolders];
-                  newFolderData[index] = {
-                    label: newFolder.label,
-                    value: newFolder.value,
-                  };
-                  setCreateSelectableFolders(newFolderData);
-                } else {
-                  const newImageData = [...imageData];
-                  delete newImageData[index]?.folder;
-                  setImageData(newImageData);
-
-                  const newFolderData = [...createSelectableFolders];
-                  delete newFolderData[index];
-                  setCreateSelectableFolders(newFolderData);
-                }
-              }}
-              value={createSelectableFolders[index]}
-              placeholder="Optional"
+            <CreateableFolderDropdown
+              index={index}
+              folderOptions={folderOptions}
+              setFolderOptions={setFolderOptions}
+              createSelectableFolders={createSelectableFolders}
+              setCreateSelectableFolders={setCreateSelectableFolders}
+              imageData={imageData}
+              setImageData={setImageData}
             />
           </div>
           <div className={classes.visibilityLabel}>Visibility</div>
@@ -258,26 +252,27 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             />
           </div>
 
-          {/* for prev/next buttons, log out what happens to index state when changing images
-          i think it is -1 0 1 so might have to do some quirky logic */}
-          <button className={`${classes.previousButton} secondaryBtn`}>
+          <button
+            className={`${classes.previousButton} secondaryBtn`}
+            onClick={() => changeIndex(false)}
+          >
             Prev
           </button>
           <div className={classes.dragAndDropUpload}>
             <DragAndDrop
               // maybe need a key here?
-              containerWidth={"100%"}
-              containerHeight={"100%"}
-              containerBorderRadius={"0.375rem"}
-              dragAndDropWidth={"98%"}
-              dragAndDropHeight={"90%"}
-              dragAndDropBorderRadius={"0.375rem"}
+              renderedLocation={"reviewModal"}
               files={files}
               setFiles={setFiles}
               usedInReviewModal={true}
             />
           </div>
-          <button className={`${classes.nextButton} secondaryBtn`}>Next</button>
+          <button
+            className={`${classes.nextButton} secondaryBtn`}
+            onClick={() => changeIndex(true)}
+          >
+            Next
+          </button>
 
           <div
             className="absolute top-2 right-2 transition hover:opacity-50"
@@ -297,8 +292,11 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
       )}
 
       <DynamicHeader
-        imageFile={imageToBeEdited}
+        imageToBeEdited={imageToBeEdited}
         setImageToBeEdited={setImageToBeEdited}
+        imageData={imageData}
+        setImageData={setImageData}
+        index={index}
       />
     </div>
   );
