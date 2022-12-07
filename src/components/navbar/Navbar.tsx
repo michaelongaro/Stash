@@ -18,7 +18,7 @@ function Navbar() {
 
   return (
     <div className="flex h-14 w-[100vw] items-center justify-between bg-blue-600 pl-8 pr-8">
-      <div className="justify-baseline flex items-center gap-[0.2rem] text-4xl text-blue-400">
+      <div className="justify-baseline flex select-none items-center gap-[0.2rem] text-4xl text-blue-400">
         St
         <div className="translate-y-[4px] rotate-180 text-blue-700">v</div>
         sh
