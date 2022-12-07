@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import HomePage from "../components/HomePage";
 import ImageLibrary from "../components/ImageLibrary/ImageLibrary";
 import { trpc } from "../utils/trpc";
+import { ToastContainer } from "react-toastify";
 
 const Home = () => {
   // def don't have to do, but could just have like a whole page spinner (component?)
@@ -80,6 +81,7 @@ const Home = () => {
       ) : (
         <HomePage />
       )}
+      <ToastContainer limit={3} />
     </>
   );
 };
