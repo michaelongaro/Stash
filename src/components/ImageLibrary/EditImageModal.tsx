@@ -5,19 +5,28 @@ import { useSession } from "next-auth/react";
 import { FaTimes, FaEdit, FaCrop, FaTrash } from "react-icons/fa";
 
 import isEqual from "lodash.isequal";
+import S3 from "aws-s3";
+
+import { type IS3Response } from "../ImageUpload/UploadProgressModal";
 
 import dynamic from "next/dynamic";
 import Select from "react-select";
-import {
-  type IFolderOptions,
-  visibilityOptions,
-} from "../ImageUpload/ImageReviewModal";
+import { visibilityOptions } from "../ImageUpload/ImageReviewModal";
 import Image from "next/image";
-
-import CreateSelectable from "react-select/creatable";
-
 import { trpc } from "../../utils/trpc";
+import CreateSelectable from "react-select/creatable";
+import { type ICreateSelectableOptions } from "../ImageUpload/ImageReviewModal";
+
 import classes from "./EditImageModal.module.css";
+
+const config = {
+  bucketName: "stash-resources",
+  region: "us-east-2",
+  accessKeyId: "AKIA3MXYY55AXMHDSQCJ",
+  secretAccessKey: "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",
+};
+
+const S3Client = new S3(config);
 
 const DynamicHeader = dynamic(() => import("../ImageUpload/ImageEditorModal"), {
   ssr: false,
@@ -34,20 +43,28 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
   const utils = trpc.useContext();
 
   const [editedImageData, setEditedImageData] = useState<IImage>(image);
-  const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);
+  const [folderOptions, setFolderOptions] = useState<
+    ICreateSelectableOptions[]
+  >([]);
+  // separate state for folder because image only has folderID, and we need both the id
+  // and the title of the folder to be available in <CreateSelectable /> below
+  const [currentlySelectedFolder, setCurrentlySelectedFolder] =
+    useState<ICreateSelectableOptions | null>(null);
 
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
 
-  // separate state for folder because image only has folderID, and we need both the id
-  // and the title of the folder to be available in <CreateSelectable /> below
-  const [currentFolderForImage, setCurrentFolderForImage] =
-    useState<IFolderOptions | null>(null);
   const [newlyAddedFolderID, setNewlyAddedFolderID] = useState<string>();
 
-  const [imageToBeEdited, setImageToBeEdited] = useState<IImage>();
+  const [imageToBeEdited, setImageToBeEdited] = useState<string>(); // IImage
 
   const [readyToUpdate, setReadyToUpdate] = useState<boolean>(false);
+
+  const [editedImageFile, setEditedImageFile] = useState<File>();
+
+  const [showDiscardChangesModal, setShowDiscardChangesModal] =
+    useState<boolean>(false);
+  const [changesMade, setChangesMade] = useState<boolean>(false);
 
   const createFolder = trpc.images.createFolder.useMutation({
     onMutate: () => {
@@ -106,37 +123,79 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
 
   useEffect(() => {
     if (allUserFolders && allUserFolders.length > 0) {
-      const folderData: IFolderOptions[] = [];
+      const folderData: ICreateSelectableOptions[] = [];
       allUserFolders.map((folder) => {
         if (image.folderID === folder.id) {
-          setCurrentFolderForImage(folder);
+          setCurrentlySelectedFolder({ value: folder.id, label: folder.title });
         }
-        folderData.push({ id: folder.id, title: folder.title });
+        folderData.push({ value: folder.id, label: folder.title });
       });
       setFolderOptions(folderData);
     }
-  }, [allUserFolders]);
+  }, [image, allUserFolders]);
 
   // probably redo these two effects later
   useEffect(() => {
     if (newlyAddedFolderID && newlyAddedFolderID.length > 0) {
       setReadyToUpdate(true);
-      setNewlyAddedFolderID(undefined);
+
+      // try to use setState callback to set currentlySelectedFolder later
+      if (currentlySelectedFolder?.label) {
+        let prevFolderState = { ...currentlySelectedFolder };
+        prevFolderState = {
+          label: currentlySelectedFolder.label,
+          value: newlyAddedFolderID,
+        };
+        setCurrentlySelectedFolder(prevFolderState);
+      }
+
+      // setNewlyAddedFolderID(undefined);
     }
-  }, [newlyAddedFolderID]);
+  }, [currentlySelectedFolder, newlyAddedFolderID]);
 
   useEffect(() => {
     if (readyToUpdate) {
-      updateImageData.mutate({
-        ...editedImageData,
-        folderID:
-          newlyAddedFolderID ?? currentFolderForImage?.id?.length
-            ? currentFolderForImage?.id
-            : null,
-      });
-      setReadyToUpdate(false);
+      // check if image was edited -> needs to be uploaded to s3 -> store new url in db
+      if (editedImageFile) {
+        S3Client.uploadFile(editedImageFile).then((res: IS3Response) => {
+          updateImageData.mutate({
+            ...editedImageData,
+            folderID:
+              newlyAddedFolderID ?? currentlySelectedFolder?.value?.length
+                ? currentlySelectedFolder?.value
+                : null,
+            s3ImageURL: res.location,
+          });
+          setReadyToUpdate(false);
+          setNewlyAddedFolderID(undefined); // necessary?
+        });
+      } else {
+        updateImageData.mutate({
+          ...editedImageData,
+          folderID:
+            newlyAddedFolderID ?? currentlySelectedFolder?.value?.length
+              ? currentlySelectedFolder?.value
+              : null,
+        });
+        setReadyToUpdate(false);
+        setNewlyAddedFolderID(undefined); // necessary?
+      }
     }
-  }, [readyToUpdate, currentFolderForImage, editedImageData]);
+  }, [
+    newlyAddedFolderID,
+    readyToUpdate,
+    currentlySelectedFolder,
+    editedImageData,
+    editedImageFile,
+  ]);
+
+  useEffect(() => {
+    setChangesMade(
+      !isEqual(image, editedImageData) ||
+        image.folderID !== currentlySelectedFolder?.value ||
+        editedImageFile !== undefined
+    );
+  }, [image, editedImageData, currentlySelectedFolder, editedImageFile]);
 
   return (
     <div
@@ -232,13 +291,48 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           <div className={classes.FolderDropdownInput}>
             <CreateSelectable
               isClearable
-              options={folderOptions}
-              getOptionLabel={(options) => options.title}
-              getOptionValue={(options) => options.id!} // may have to look at this again if a brand new folder is created
-              onChange={(newFolder: IFolderOptions | null) => {
-                setCurrentFolderForImage(newFolder);
+              styles={{
+                option: (baseStyles, state) => ({
+                  ...baseStyles,
+                  color: "#1e3a8a",
+                }),
               }}
-              value={currentFolderForImage}
+              options={folderOptions}
+              onChange={(newFolder) => {
+                if (newFolder?.label) {
+                  // updating list of folders in dropdown
+                  if (
+                    folderOptions.every(
+                      (elem) => elem.label !== newFolder.label
+                    )
+                  ) {
+                    // making sure folder isn't already present)
+                    const newFolderOptions = [...folderOptions];
+                    newFolderOptions[newFolderOptions.length] = {
+                      label: newFolder.label,
+                      value: newFolder.value,
+                    };
+                    setFolderOptions(newFolderOptions);
+                  }
+
+                  setCurrentlySelectedFolder({
+                    label: newFolder.label,
+                    value:
+                      newFolder.value !== newFolder.label
+                        ? newFolder.value
+                        : undefined,
+                  });
+                } else {
+                  // want to uncomment below once you have functionality to fully delete folder from this menu
+                  // (assuming you want that functionality)
+                  // const newFolderOptions = [...folderOptions];
+                  // delete newFolderOptions[index];
+                  // setFolderOptions(newFolderOptions);
+
+                  setCurrentlySelectedFolder(null);
+                }
+              }}
+              value={currentlySelectedFolder}
               placeholder="Optional"
             />
           </div>
@@ -266,36 +360,43 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           <div className={classes.linkLabel}>Link</div>
           <div className={classes.linkValue}>
             {/* click to copy here */}
-            <a href={image.s3ImageURL} target="_blank" rel="noreferrer">
-              {image.s3ImageURL}
+            <a
+              href={`${
+                process.env.VERCEL_URL
+                  ? `https://${process.env.VERCEL_URL}`
+                  : `http://localhost:${process.env.PORT ?? 3000}`
+              }/${image.randomizedURL}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {`${
+                process.env.VERCEL_URL
+                  ? `https://${process.env.VERCEL_URL}`
+                  : `http://localhost:${process.env.PORT ?? 3000}`
+              }/${image.randomizedURL}`}
             </a>
           </div>
 
           <button
             className={`${classes.editButton} secondaryBtn flex items-center justify-center gap-4`}
-            onClick={() => setImageToBeEdited(editedImageData)}
+            onClick={() => setImageToBeEdited(image.s3ImageURL)}
           >
             Edit image
             <FaCrop size={"1rem"} />
           </button>
           <button
             className={`${classes.saveButton} primaryBtn`}
-            disabled={
-              isEqual(image, editedImageData) &&
-              image.folderID === currentFolderForImage?.id // start with making this work
-                ? true
-                : false
-            }
+            disabled={!changesMade}
             onClick={() => {
               // before updating, need to:
-              // check if new folder was created + needs to be .created -> get newId -> folderID: newId
+              // check if new folder was created -> needs to be .created -> get newId -> folderID: newId
               if (
-                currentFolderForImage &&
-                typeof currentFolderForImage.id === "undefined" &&
+                currentlySelectedFolder &&
+                typeof currentlySelectedFolder.value === "undefined" &&
                 session?.user?.id
               ) {
                 createFolder.mutate({
-                  title: currentFolderForImage.title,
+                  title: currentlySelectedFolder.label,
                   userID: session.user.id,
                 });
               } else {
@@ -319,24 +420,69 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </button>
         </div>
 
-        <Image
-          src={image.s3ImageURL}
-          alt={image.title ?? "uploaded image"}
-          width={500}
-          height={500}
-        />
-        <div
+        <div className="relative flex h-full w-full items-center justify-center">
+          {editedImageFile && (
+            <div className="absolute top-2 right-2 rounded-md bg-blue-50 p-2 text-red-500">
+              edited image will be shown once changes are saved*
+            </div>
+          )}
+          <Image
+            src={image.s3ImageURL}
+            alt={image.title ?? "uploaded image"}
+            width={500}
+            height={500}
+          />
+        </div>
+        <button
           className="absolute top-2 right-2 transition hover:opacity-50"
-          onClick={() => setImageBeingEdited(undefined)}
+          onClick={() => {
+            if (changesMade) {
+              setShowDiscardChangesModal(true);
+            } else {
+              setImageBeingEdited(undefined);
+            }
+          }}
         >
           <FaTimes size={"2rem"} style={{ cursor: "pointer" }} />
-        </div>
+        </button>
       </div>
 
-      {/* <DynamicHeader
-        imageFile={imageToBeEdited?.s3ImageURL}
+      <DynamicHeader
+        imageToBeEdited={imageToBeEdited}
         setImageToBeEdited={setImageToBeEdited}
-      /> */}
+        setEditedImageFile={setEditedImageFile}
+      />
+
+      {showDiscardChangesModal && (
+        <div className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all">
+          <div className="relative flex h-full flex-col items-center justify-center gap-4 rounded-md bg-blue-400 p-8">
+            <div className="item-center flex flex-col justify-center gap-2 ">
+              <div className="text-center">
+                Exiting the editor will discard any changes you&apos;ve made.
+              </div>
+              <div className="text-center">Are you sure you want to exit?</div>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                className="primaryBtn"
+                onClick={() => {
+                  setShowDiscardChangesModal(false);
+                }}
+              >
+                Continue editing
+              </button>
+              <button
+                className="secondaryBtn"
+                onClick={() => {
+                  setImageBeingEdited(undefined);
+                }}
+              >
+                Discard changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
