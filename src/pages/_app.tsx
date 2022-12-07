@@ -6,8 +6,8 @@ import { Varela_Round } from "@next/font/google";
 import { trpc } from "../utils/trpc";
 
 import "../components/ImageUpload/SlideshowStyles.css";
-import "tui-image-editor/dist/tui-image-editor.css";
 import "react-slideshow-image/dist/styles.css";
+import "react-toastify/dist/ReactToastify.css";
 import "../styles/globals.css";
 
 const varelaRound = Varela_Round({
