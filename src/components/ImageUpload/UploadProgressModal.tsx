@@ -19,6 +19,11 @@ const config = {
 
 const S3Client = new S3(config);
 
+export interface IS3Response {
+  bucket: string;
+  key: string;
+  location: string;
+}
 interface IUploadProgressModal {
   files: IFile[];
   setFiles: React.Dispatch<React.SetStateAction<IImage[]>>;
@@ -109,11 +114,6 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   // currently uploading the image(s) twice... has to be from useEffect below but not
   // sure exactly what is causing that
-  interface IS3Response {
-    bucket: string;
-    key: string;
-    location: string;
-  }
 
   useEffect(() => {
     if (
