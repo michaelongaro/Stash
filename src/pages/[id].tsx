@@ -32,7 +32,7 @@ function SharedImage() {
     <div className="flex h-[100vh] items-center justify-center">
       {userQuery && !unauthorizedToViewImage && (
         <img
-          className="shadow-xl"
+          className="max-h-[99vh] shadow-xl"
           src={userQuery.data?.s3ImageURL}
           alt={userQuery.data?.title ?? "image retrieved from AWS s3 database"}
         />
