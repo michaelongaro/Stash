@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { trpc } from "../utils/trpc";
 import { useSession } from "next-auth/react";
+import { FaLock } from "react-icons/fa";
 
 function SharedImage() {
   const router = useRouter();
@@ -31,14 +32,15 @@ function SharedImage() {
     <div className="flex h-[100vh] items-center justify-center">
       {userQuery && !unauthorizedToViewImage && (
         <img
-          className="m-auto h-[100vh]"
+          className="shadow-xl"
           src={userQuery.data?.s3ImageURL}
-          alt={userQuery.data?.title ?? "image retrieved from aws s3 database"}
+          alt={userQuery.data?.title ?? "image retrieved from AWS s3 database"}
         />
       )}
 
       {unauthorizedToViewImage && (
-        <div className="rounded-md bg-slate-200 p-4 text-3xl text-blue-700">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-md bg-slate-200 p-4 text-3xl text-blue-700">
+          <FaLock size={"2rem"} />
           You do not have access to view this image.
         </div>
       )}
