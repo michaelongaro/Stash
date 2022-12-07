@@ -175,9 +175,9 @@ function Images() {
               </div>
             </div>
           ) : (
-            <div>
+            <>
               <div className="pl-2 text-xl">Folders </div>
-              <div className="flex max-w-[85vw] flex-wrap items-center justify-start gap-4 ">
+              <div className="flex flex-wrap items-center justify-start gap-4 ">
                 {folders.map((folder) => {
                   return (
                     <button
@@ -196,7 +196,7 @@ function Images() {
                   );
                 })}
               </div>
-            </div>
+            </>
           )}
         </div>
       )}
