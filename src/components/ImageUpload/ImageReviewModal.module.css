@@ -28,7 +28,7 @@
     grid-template-areas:
       "upload upload upload upload"
       "upload upload upload upload"
-      "preview imageNumbers . ."
+      "preview imageNumbers imageNumbers imageNumbers"
       "slideshow slideshow slideshow slideshow"
       "filenameLabel filename filename filename"
       "lastModifiedLabel lastModified lastModified lastModified"
@@ -50,15 +50,17 @@
   .nextButton,
   .previousButton {
     height: 100%;
+    width: 100%;
   }
 }
 
 @media (max-width: 915px) {
   .modalGrid {
+    grid-template-rows: repeat(19, 1fr);
     grid-template-areas:
       "upload upload upload upload"
       "upload upload upload upload"
-      "preview imageNumbers . ."
+      "preview imageNumbers imageNumbers imageNumbers"
       "slideshow slideshow slideshow slideshow"
       "filenameLabel filename filename filename"
       "lastModifiedLabel lastModified lastModified lastModified"
@@ -78,12 +80,21 @@
   }
 }
 
+/* @media (max-width: 765px) {
+
+  .editButton,
+  .removeImageFromUploadButton {
+    flex-direction: column;
+  }
+} */
+
 @media (max-width: 650px) {
   .modalGrid {
+    grid-template-rows: repeat(22, 1fr);
     grid-template-areas:
       "upload upload upload upload"
       "upload upload upload upload"
-      "preview imageNumbers . ."
+      "preview imageNumbers imageNumbers imageNumbers"
       "slideshow slideshow slideshow slideshow"
       "filenameLabel filename filename filename"
       "lastModifiedLabel lastModified lastModified lastModified"
@@ -103,6 +114,15 @@
       "dragAndDropUpload dragAndDropUpload dragAndDropUpload dragAndDropUpload"
       "previousButton previousButton nextButton nextButton"
       "previousButton previousButton nextButton nextButton";
+  }
+
+  .editButton,
+  .removeImageFromUploadButton {
+    flex-direction: column;
+  }
+
+  .removeImageFromUploadButton {
+    font-size: 0.8rem;
   }
 }
 
@@ -139,6 +159,10 @@
 
 .filename {
   grid-area: filename;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .lastModifiedLabel {
