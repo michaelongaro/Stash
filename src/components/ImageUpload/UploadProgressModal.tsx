@@ -55,7 +55,7 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   // destroys component when all images are inside the database
   if (numImagesInsertedIntoDatabase === files.length && files.length !== 0) {
     document.body.style.overflow = "auto";
-    setFiles([]);
+    setInterval(() => setFiles([]), 1500);
   }
 
   // optimistic updating
@@ -190,10 +190,10 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   return (
     <div className="flex flex-col items-center justify-center gap-8">
-      <div className={classes.ripple}>
-        <div>
-          <div></div>
-        </div>
+      <div className="circles h-[100px] w-[100px]">
+        <div className="circle1 h-[100px] w-[100px]"></div>
+        <div className="circle2 h-[100px] w-[100px]"></div>
+        <div className="circle3 h-[100px] w-[100px]"></div>
       </div>
       Uploading
     </div>
