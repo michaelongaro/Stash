@@ -60,15 +60,3 @@
 .indicators {
   gap: .25rem;
 }
-
-@media (max-width: 600px) {
-  .react-slideshow-container {
-    width: 70%;
-  }
-}
-
-@media (max-width: 430px) {
-  .react-slideshow-container {
-    width: 50%;
-  }
-}
