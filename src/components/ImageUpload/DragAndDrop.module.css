@@ -11,9 +11,78 @@
   background-color: #fafafa;
   color: #bdbdbd;
   outline: none;
-  transition: border .24s ease-in-out;
+  transition: border 0.24s ease-in-out;
 }
 
 .dropzone:focus {
   border-color: #2196f3;
+}
+
+.homepageContainer {
+  width: 40vw;
+  height: 150px;
+}
+
+.reviewModalContainer {
+  width: 100%;
+  height: 100%;
+}
+
+.imagesLibraryContainer {
+  width: 85vw;
+  height: 85px;
+}
+
+.homepageDragAndDrop {
+  width: 98%;
+  height: 90%;
+}
+
+.reviewModalDragAndDrop {
+  width: 98%;
+  height: 90%;
+}
+
+.imagesLibraryDragAndDrop {
+  width: 50%;
+  height: 90%;
+}
+
+/* Media Queries */
+@media (max-width: 1225px) {
+  .homepageContainer {
+    width: 70vw;
+
+  }
+}
+
+@media (max-width: 775px) {
+  .reviewModalContainer {
+    width: 100%;
+    height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .homepageContainer {
+    width: 90vw;
+    height: 250px;
+  }
+
+  .imagesLibraryContainer {
+    width: 90vw;
+  }
+}
+
+@media (max-width: 600px) {
+  .dragAndDropText {
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .imagesLibraryContainer {
+    width: 90vw;
+    height: 250px;
+  }
 }

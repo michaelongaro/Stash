@@ -16,24 +16,14 @@ export interface IImage {
 }
 
 interface IDragAndDrop {
-  containerWidth: string;
-  containerHeight: string;
-  containerBorderRadius: string;
-  dragAndDropWidth: string;
-  dragAndDropHeight: string;
-  dragAndDropBorderRadius: string;
+  renderedLocation: string;
   files: IImage[];
   setFiles: React.Dispatch<React.SetStateAction<IImage[]>>;
   usedInReviewModal: boolean;
 }
 
 function DragAndDrop({
-  containerWidth,
-  containerHeight,
-  containerBorderRadius,
-  dragAndDropWidth,
-  dragAndDropHeight,
-  dragAndDropBorderRadius,
+  renderedLocation,
   files,
   setFiles,
   usedInReviewModal,
@@ -68,8 +58,6 @@ function DragAndDrop({
     }
   }, [isFocused, isDragAccept, isDragReject]);
 
-  // This causes infinite loop... start here
-
   useEffect(() => {
     if (acceptedFiles.length > 0) {
       setImagesHaveBeenAdded(true);
@@ -99,36 +87,53 @@ function DragAndDrop({
     }
   }, [acceptedFiles, files, imagesHaveBeenAdded]);
 
+  function getContainerClass(renderedLocation: string) {
+    if (renderedLocation === "homepage") {
+      return classes.homepageContainer;
+    } else if (renderedLocation === "reviewModal") {
+      return classes.reviewModalContainer;
+    } else if (renderedLocation === "imagesLibrary") {
+      return classes.imagesLibraryContainer;
+    }
+  }
+
+  function getRootClass(renderedLocation: string) {
+    if (renderedLocation === "homepage") {
+      return classes.homepageDragAndDrop;
+    } else if (renderedLocation === "reviewModal") {
+      return classes.reviewModalDragAndDrop;
+    } else if (renderedLocation === "imagesLibrary") {
+      return classes.imagesLibraryDragAndDrop;
+    }
+  }
+
   // if designated as used in modal:
   // then just do above then setFiles(oldFiles => [...oldFiles, newFiles])
 
   return (
     // leave as a "section" tag?
     <section
-      style={{
-        minWidth: containerWidth,
-        maxWidth: containerWidth,
-        height: containerHeight,
-        borderRadius: containerBorderRadius,
-      }}
-      className={`container flex items-center justify-center rounded-md bg-blue-300`}
+      className={`${getContainerClass(
+        renderedLocation
+      )} container flex items-center justify-center rounded-md bg-blue-300 p-1 transition-all`}
     >
       <div
-        style={{
-          minWidth: dragAndDropWidth,
-          maxWidth: dragAndDropWidth,
-          height: dragAndDropHeight,
-          borderColor: borderColor,
-          borderRadius: dragAndDropBorderRadius,
-        }}
-        {...getRootProps({ className: classes.dropzone })}
+        {...getRootProps({
+          className: `${classes.dropzone} ${getRootClass(
+            renderedLocation
+          )} rounded-md transition-all`,
+        })}
       >
         <input {...getInputProps()} />
-        {/* replace "click" with <HiOutlineCursorClick /> */}
-        <p className="flex items-center justify-center gap-2">
-          Drag + drop your image(s) here, or
-          <HiOutlineCursorClick size={"1.25rem"} />
-          to manually select
+        <p
+          className={`${classes.dragAndDropText} flex items-center justify-center gap-2`}
+        >
+          Drag + drop your image(s) here,
+          <div className="flex items-center justify-center gap-2 text-[rgb(189,189,189)]">
+            or
+            <HiOutlineCursorClick size={"1.25rem"} />
+            to manually select
+          </div>
         </p>
         <p>- Size limit: 150MB -</p>
       </div>

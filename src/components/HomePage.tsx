@@ -26,12 +26,7 @@ function HomePage() {
       <LogIn gap={"1.5rem"} />
 
       <DragAndDrop
-        containerWidth={"30vw"} // make responsive
-        containerHeight={"150px"}
-        containerBorderRadius={"0.375rem"}
-        dragAndDropWidth={"98%"}
-        dragAndDropHeight={"90%"}
-        dragAndDropBorderRadius={"0.375rem"}
+        renderedLocation={"homepage"}
         files={files}
         setFiles={setFiles}
         usedInReviewModal={false}

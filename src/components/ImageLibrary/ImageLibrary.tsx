@@ -11,12 +11,7 @@ function ImageLibrary() {
       <Navbar />
 
       <DragAndDrop
-        containerWidth={"85vw"}
-        containerHeight={"85px"}
-        containerBorderRadius={"0.375rem"}
-        dragAndDropWidth={"50%"}
-        dragAndDropHeight={"90%"}
-        dragAndDropBorderRadius={"0.375rem"}
+        renderedLocation={"imagesLibrary"}
         files={files}
         setFiles={setFiles}
         usedInReviewModal={false}
