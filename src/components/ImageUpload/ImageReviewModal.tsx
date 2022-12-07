@@ -294,7 +294,6 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
       <DynamicHeader
         imageToBeEdited={imageToBeEdited}
         setImageToBeEdited={setImageToBeEdited}
-        imageData={imageData}
         setImageData={setImageData}
         index={index}
       />
