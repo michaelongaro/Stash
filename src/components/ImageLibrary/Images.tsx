@@ -12,6 +12,7 @@ import {
   FaTimes,
   FaCheck,
 } from "react-icons/fa";
+import { AnimatePresence } from "framer-motion";
 
 function Images() {
   // should eventually use status to show something while fetching whether user
@@ -215,12 +216,18 @@ function Images() {
         </div>
       )}
 
-      {imageBeingEdited && (
-        <EditImageModal
-          image={imageBeingEdited}
-          setImageBeingEdited={setImageBeingEdited}
-        />
-      )}
+      <AnimatePresence
+        initial={false}
+        mode={"wait"}
+        onExitComplete={() => null}
+      >
+        {imageBeingEdited && (
+          <EditImageModal
+            image={imageBeingEdited}
+            setImageBeingEdited={setImageBeingEdited}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

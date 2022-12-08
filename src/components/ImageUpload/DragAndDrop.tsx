@@ -7,6 +7,7 @@ import { HiOutlineCursorClick } from "react-icons/hi";
 
 import classes from "./DragAndDrop.module.css";
 import ImageReviewModal from "./ImageReviewModal";
+import { AnimatePresence } from "framer-motion";
 
 export interface IImage {
   imageFile: File;
@@ -138,10 +139,16 @@ function DragAndDrop({
         <p>- Size limit: 150MB -</p>
       </div>
 
-      {files.length > 0 && !usedInReviewModal && (
-        // pass through setter (to be able to remove a file from being in upload queue)
-        <ImageReviewModal files={files} setFiles={setFiles} />
-      )}
+      <AnimatePresence
+        initial={false}
+        mode={"wait"}
+        onExitComplete={() => null}
+      >
+        {files.length > 0 && !usedInReviewModal && (
+          // pass through setter (to be able to remove a file from being in upload queue)
+          <ImageReviewModal files={files} setFiles={setFiles} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

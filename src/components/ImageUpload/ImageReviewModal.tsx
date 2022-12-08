@@ -7,6 +7,7 @@ import { Slideshow } from "./Slideshow";
 import { type SlideshowRef } from "react-slideshow-image";
 import dynamic from "next/dynamic";
 import Select from "react-select";
+import { motion } from "framer-motion";
 
 import classes from "./ImageReviewModal.module.css";
 import UploadProgressModal from "./UploadProgressModal";
@@ -14,6 +15,9 @@ import { trpc } from "../../utils/trpc";
 import isEqual from "lodash.isequal";
 import { FaCrop, FaTimes, FaTrash } from "react-icons/fa";
 import CreateableFolderDropdown from "./CreateableFolderDropdown";
+import useOnClickOutside from "../../hooks/useOnClickOutside";
+import { dropIn } from "../../utils/framerMotionDropInStyles";
+import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
 
 interface IFileProps {
   files: IImage[];
@@ -72,6 +76,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
   const [imageToBeEdited, setImageToBeEdited] = useState<File>();
 
   const slideRef = useRef<SlideshowRef>(null);
+  const reviewModalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (files.length > 0) {
@@ -93,12 +98,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
     }
   }, [files, imageData]);
 
-  // temporary:
-  useEffect(() => {
-    if (files.length > 0) {
-      document.body.style.overflow = "hidden";
-    }
-  }, [files]);
+  useScrollModalIntoView();
 
   useEffect(() => {
     if (allUserFolders && allUserFolders.length > 0) {
@@ -109,6 +109,12 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
       setFolderOptions(folderData);
     }
   }, [allUserFolders]);
+
+  useOnClickOutside({
+    ref: reviewModalRef,
+    setter: setFiles,
+    hideModalValue: [],
+  });
 
   const changeIndex = (moveForwardInArray: boolean) => {
     if (moveForwardInArray) {
@@ -129,15 +135,23 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
   };
 
   return (
-    <div
-      style={{
-        opacity: files.length !== 0 ? 1 : 0,
-        pointerEvents: files.length !== 0 ? "auto" : "none",
-      }}
+    <motion.div
+      key={files[0]?.size}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
     >
       {imageData.length !== 0 && !startUploadOfImages && (
-        <div className={`${classes.modalGrid} relative bg-blue-400/90`}>
+        <motion.div
+          key={imageData[0]?.image.lastModified}
+          ref={reviewModalRef}
+          variants={dropIn}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          className={`${classes.modalGrid} relative bg-blue-400/90`}
+        >
           <div className={`${classes.preview} flex items-end justify-center`}>
             Preview
           </div>
@@ -283,21 +297,23 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           >
             <FaTimes size={"2rem"} style={{ cursor: "pointer" }} />
           </div>
-        </div>
+
+          <div onClick={(e) => e.stopPropagation()}>
+            <DynamicHeader
+              imageToBeEdited={imageToBeEdited}
+              setImageToBeEdited={setImageToBeEdited}
+              setImageData={setImageData}
+              index={index}
+            />
+          </div>
+        </motion.div>
       )}
 
       {/* upload progress modal */}
       {startUploadOfImages && (
         <UploadProgressModal files={imageData} setFiles={setFiles} />
       )}
-
-      <DynamicHeader
-        imageToBeEdited={imageToBeEdited}
-        setImageToBeEdited={setImageToBeEdited}
-        setImageData={setImageData}
-        index={index}
-      />
-    </div>
+    </motion.div>
   );
 }
 
