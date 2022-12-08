@@ -1,0 +1,14 @@
+.stashLogo {
+  stroke-dasharray: 400;
+  animation: draw 3s alternate infinite ease-in;
+}
+
+@keyframes draw {
+  0% {
+    stroke-dashoffset: 400;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
