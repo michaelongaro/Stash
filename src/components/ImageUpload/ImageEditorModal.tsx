@@ -38,8 +38,8 @@ function ImageEditorModal({
   if (!imageToBeEdited) return <></>;
 
   return (
-    <div className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all">
-      <div className="relative flex h-full w-[85vw] flex-col items-center justify-center gap-4">
+    <div className="absolute top-0 left-0 z-[500] flex h-full w-full items-center justify-center bg-blue-700/70 transition-all">
+      <div className="relative flex h-[80%] w-[80%] flex-col items-center justify-center gap-4">
         <FilerobotImageEditor
           source={
             typeof imageToBeEdited === "string"
