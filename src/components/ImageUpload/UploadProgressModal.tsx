@@ -8,7 +8,8 @@ import { type IFile } from "./ImageReviewModal";
 import { type IImage } from "./DragAndDrop";
 import { useSession } from "next-auth/react";
 
-import classes from "./UploadProgressModal.module.css";
+import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
+import StashLogoAnimation from "../logo/StashLogoAnimation";
 
 const config = {
   bucketName: "stash-resources",
@@ -50,17 +51,12 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
     if (session?.user?.id) setCurrentUserID(session.user.id);
   }, [session]);
 
-  // temporary:
-  useEffect(() => {
-    if (files.length > 0) {
-      document.body.style.overflow = "hidden";
-    }
-  }, [files]);
+  useScrollModalIntoView();
 
   // destroys component when all images are inside the database
   if (numImagesInsertedIntoDatabase === files.length && files.length !== 0) {
     document.body.style.overflow = "auto";
-    setInterval(() => setFiles([]), 1500);
+    setInterval(() => setFiles([]), 3000);
   }
 
   // optimistic updating
@@ -190,11 +186,7 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   return (
     <div className="flex flex-col items-center justify-center gap-8">
-      <div className="circles h-[100px] w-[100px]">
-        <div className="circle1 h-[100px] w-[100px]"></div>
-        <div className="circle2 h-[100px] w-[100px]"></div>
-        <div className="circle3 h-[100px] w-[100px]"></div>
-      </div>
+      <StashLogoAnimation size={"6rem"} />
       Uploading
     </div>
   );
