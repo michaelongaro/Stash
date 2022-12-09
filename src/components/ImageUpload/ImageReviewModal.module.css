@@ -80,13 +80,12 @@
   }
 }
 
-/* @media (max-width: 765px) {
+@media (max-width: 850px) {
 
-  .editButton,
-  .removeImageFromUploadButton {
-    flex-direction: column;
+  .modalGrid {
+    width: 95vw;
   }
-} */
+}
 
 @media (max-width: 650px) {
   .modalGrid {
