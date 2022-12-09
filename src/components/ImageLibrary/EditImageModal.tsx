@@ -232,10 +232,10 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="relative m-6 flex max-h-[95vh] flex-col items-center justify-start gap-4 overflow-y-scroll rounded-md bg-blue-400/90 p-10 sm:max-w-[95vw] lg:max-w-[85vw]"
+        className="relative m-6 flex max-h-[95vh] flex-col items-center justify-start gap-4 overflow-y-scroll rounded-md bg-blue-500/90 p-10 sm:max-w-[95vw] lg:max-w-[85vw]"
       >
         <div
-          className={`${classes.editImageDetailsGrid} rounded-md bg-blue-300 p-4`}
+          className={`${classes.editImageDetailsGrid} rounded-md bg-blue-400/90 p-4`}
         >
           <div className={classes.titleLabel}>Title</div>
           <div className={classes.titleInput}>
@@ -367,6 +367,12 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           <div className={classes.visibilityLabel}>Visibility</div>
           <div className={classes.visibilityDowndownInput}>
             <Select
+              styles={{
+                option: (baseStyles, state) => ({
+                  ...baseStyles,
+                  color: "#1e3a8a",
+                }),
+              }}
               options={visibilityOptions}
               onChange={(e) => {
                 const newImageData = { ...editedImageData };
@@ -378,6 +384,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   ? { label: "Public", value: true }
                   : { label: "Private", value: false }
               }
+              isSearchable={false}
               isDisabled={!session?.user?.id}
             />
           </div>
