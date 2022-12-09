@@ -38,13 +38,13 @@ function UploadedImage({ image, setImageBeingEdited }: IUploadedImage) {
     },
   });
 
-  // not sure if mentioned but maybe have a lock in top left to toggle public/private?
   return (
     <div
-      // style={{ backgroundColor: hoveringOnImage ? "" : "" }}
       className="relative flex items-center justify-center rounded-md transition-all hover:bg-blue-200"
       onMouseEnter={() => setHoveringOnImage(true)}
       onMouseLeave={() => setHoveringOnImage(false)}
+      onTouchStart={() => setHoveringOnImage(true)}
+      onTouchEnd={() => setHoveringOnImage(false)}
     >
       <div
         ref={topControlsContainerRef}
@@ -61,8 +61,6 @@ function UploadedImage({ image, setImageBeingEdited }: IUploadedImage) {
           pointerEvents: hoveringOnImage ? "auto" : "none",
         }}
         className={`absolute left-0 flex w-full items-center justify-between gap-4 rounded-tl-md rounded-tr-md bg-blue-400 pl-4 pr-4 pt-1 pb-1 transition-all`}
-        // onMouseEnter={() => setHoveringOnImage(true)}
-        // onMouseLeave={() => setHoveringOnImage(false)}
       >
         <div>{image.title}</div>
         <div className="align-center flex justify-center gap-2">
@@ -135,8 +133,6 @@ function UploadedImage({ image, setImageBeingEdited }: IUploadedImage) {
           pointerEvents: hoveringOnImage ? "auto" : "none",
         }}
         className={`absolute left-0 flex w-full items-center justify-center gap-8 rounded-bl-md rounded-br-md bg-blue-500 pl-4 pr-4 pt-1 pb-1 text-blue-400 transition-all`}
-        // onMouseEnter={() => setHoveringOnImage(true)}
-        // onMouseLeave={() => setHoveringOnImage(false)}
       >
         <button
           className="secondaryBtn"
