@@ -54,12 +54,6 @@
   align-items: center;
 }
 
-/* deal with these later */
-.folderDropdownInput,
-.visibilityDowndownInput {
-  display: block !important;
-}
-
 .titleLabel {
   grid-area: titleLabel;
 }
