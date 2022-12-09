@@ -66,8 +66,6 @@ function DragAndDrop({
   }, [acceptedFiles]);
 
   useEffect(() => {
-    console.log(acceptedFiles);
-
     if (acceptedFiles.length > 0 && imagesHaveBeenAdded) {
       const newFiles: IImage[] = [...files];
       acceptedFiles.map((file) => {
