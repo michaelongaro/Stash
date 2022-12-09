@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import FilerobotImageEditor, {
   TABS,
   TOOLS,
 } from "react-filerobot-image-editor";
+import cryptoRandomString from "crypto-random-string";
 import { type IFile } from "../ImageUpload/ImageReviewModal";
 
 interface IImageEditorModal {
@@ -22,6 +23,23 @@ function ImageEditorModal({
   setImageData,
   index,
 }: IImageEditorModal) {
+  const [imageEditorKey, setImageEditorKey] = useState<string>(
+    cryptoRandomString({ length: 5 })
+  );
+
+  useEffect(() => {
+    resizeHandler();
+
+    function resizeHandler() {
+      setImageEditorKey(cryptoRandomString({ length: 5 }));
+    }
+
+    window.addEventListener("resize", resizeHandler);
+    return () => {
+      window.removeEventListener("resize", resizeHandler);
+    };
+  }, []);
+
   // function to turn base64 string into a file
   function dataURLtoFile(dataurl: string, filename: string) {
     const arr = dataurl.split(",");
@@ -39,8 +57,9 @@ function ImageEditorModal({
 
   return (
     <div className="absolute top-0 left-0 z-[500] flex h-full w-full items-center justify-center bg-blue-700/70 transition-all">
-      <div className="relative flex h-[80%] w-[80%] flex-col items-center justify-center gap-4">
+      <div className="relative flex h-[80%] flex-col items-center justify-center overflow-x-scroll md:w-[95%] md:gap-0 lg:w-[80%] lg:gap-4">
         <FilerobotImageEditor
+          key={imageEditorKey} // workaround to reset the editor when page is resized
           source={
             typeof imageToBeEdited === "string"
               ? imageToBeEdited
@@ -51,7 +70,6 @@ function ImageEditorModal({
             save: "Apply changes",
           }}
           onSave={(editedImageObject, designState) => {
-            console.log("saved", editedImageObject, designState);
             if (setEditedImageFile) {
               setEditedImageFile(
                 dataURLtoFile(editedImageObject.imageBase64!, "editedImage")
@@ -74,8 +92,6 @@ function ImageEditorModal({
             }
             setImageToBeEdited(undefined);
           }}
-          // avoidChangesNotSavedAlertOnLeave={true} prob uncomment later
-          // showBackButton={true}
           annotationsCommon={{
             fill: "#ff0000",
           }}
@@ -89,7 +105,7 @@ function ImageEditorModal({
         />
 
         <button
-          className="dangerBtn absolute top-12 right-2 "
+          className="dangerBtn !mt-2 "
           onClick={() => setImageToBeEdited(undefined)}
         >
           Discard changes
