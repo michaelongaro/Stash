@@ -195,6 +195,32 @@ input {
   }
 }
 
+.FIE_root {
+  font-family: inherit;
+}
+
 .FIE_topbar-save-wrapper {
   width: auto !important
+}
+
+.FIE_main-container {
+  flex-direction: column-reverse;
+  gap: 1rem;
+}
+
+.FIE_tabs {
+  min-width: 100%;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.FIE_editor-content {
+  width: 100% !important;
+}
+
+.konvajs-content {
+  margin: auto;
+  width: 100% !important;
 }
