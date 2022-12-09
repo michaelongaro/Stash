@@ -92,11 +92,11 @@ function Images() {
   if (isLoadingImages || isLoadingFolders) return <></>;
 
   return (
-    <div className="mt-2 w-[85vw]">
+    <div className="mt-2 w-[85vw] pb-[15%]">
       {folders && userImages && (
         <div className="rounded-md bg-blue-500 p-2">
           {selectedFolder ? (
-            <div className="flex items-center justify-start gap-4">
+            <div className="flex flex-col items-center justify-start gap-4 sm:flex-row">
               <button
                 className="secondaryBtn flex items-center justify-center gap-2"
                 onClick={() => {
@@ -109,49 +109,67 @@ function Images() {
 
               <div className="flex items-center justify-center gap-4">
                 <div className="flex items-center justify-center gap-2">
-                  <FaFolder size={"1rem"} />
                   {editingFolderData ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <input
-                        className="w-full rounded-md pl-2"
-                        type="text"
-                        placeholder="Title"
-                        value={temporaryFolderData?.title ?? "Loading..."}
-                        onChange={(e) => {
-                          const newFolderData = { ...selectedFolder };
-                          newFolderData.title = e.target.value;
-                          setTemporaryFolderData(newFolderData);
-                        }}
-                      />
+                    <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
+                      <div className="flex items-center justify-center gap-2">
+                        <FaFolder size={"1rem"} />
+                        <input
+                          className="w-full rounded-md pl-2"
+                          type="text"
+                          placeholder="Title"
+                          value={temporaryFolderData?.title ?? "Loading..."}
+                          onChange={(e) => {
+                            const newFolderData = { ...selectedFolder };
+                            newFolderData.title = e.target.value;
+                            setTemporaryFolderData(newFolderData);
+                          }}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          className="secondaryBtn"
+                          onClick={() => {
+                            const newFolderData = { ...selectedFolder };
+                            newFolderData.title = selectedFolder.title;
+                            setTemporaryFolderData(newFolderData);
+                            setEditingFolderData(false);
+                          }}
+                        >
+                          <FaTimes size={"1rem"} />
+                        </button>
+                        <button
+                          className="secondaryBtn"
+                          onClick={() => {
+                            // call update folder mutation here
+                            if (temporaryFolderData) {
+                              updateFolderData.mutate({
+                                id: temporaryFolderData.id,
+                                title: temporaryFolderData.title,
+                                description: temporaryFolderData?.description,
+                              });
+                            }
+                          }}
+                        >
+                          <FaCheck size={"1rem"} />
+                        </button>
+                      </div>
+
                       <button
-                        className="secondaryBtn"
-                        onClick={() => {
-                          const newFolderData = { ...selectedFolder };
-                          newFolderData.title = selectedFolder.title;
-                          setTemporaryFolderData(newFolderData);
-                          setEditingFolderData(false);
-                        }}
+                        className="dangerBtn"
+                        onClick={() =>
+                          deleteFolder.mutate({
+                            id: selectedFolder.id,
+                          })
+                        }
                       >
-                        <FaTimes size={"1rem"} />
-                      </button>
-                      <button
-                        className="secondaryBtn"
-                        onClick={() => {
-                          // call update folder mutation here
-                          if (temporaryFolderData) {
-                            updateFolderData.mutate({
-                              id: temporaryFolderData.id,
-                              title: temporaryFolderData.title,
-                              description: temporaryFolderData?.description,
-                            });
-                          }
-                        }}
-                      >
-                        <FaCheck size={"1rem"} />
+                        <FaTrash size={"1rem"} />
                       </button>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-4">
+                      <FaFolder size={"1rem"} />
+
                       <div>{selectedFolder.title}</div>
                       <button
                         className="secondaryBtn"
@@ -159,20 +177,20 @@ function Images() {
                       >
                         <FaEdit size={"1rem"} />
                       </button>
+
+                      <button
+                        className="dangerBtn"
+                        onClick={() =>
+                          deleteFolder.mutate({
+                            id: selectedFolder.id,
+                          })
+                        }
+                      >
+                        <FaTrash size={"1rem"} />
+                      </button>
                     </div>
                   )}
                 </div>
-
-                <button
-                  className="dangerBtn"
-                  onClick={() =>
-                    deleteFolder.mutate({
-                      id: selectedFolder.id,
-                    })
-                  }
-                >
-                  <FaTrash size={"1rem"} />
-                </button>
               </div>
             </div>
           ) : (
@@ -203,7 +221,7 @@ function Images() {
       )}
 
       {imagesToShow && (
-        <div className="m-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="m-6 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           {imagesToShow.map((image) => {
             return (
               <UploadedImage
