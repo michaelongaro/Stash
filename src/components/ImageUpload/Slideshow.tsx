@@ -4,9 +4,7 @@ import { Slide, type SlideshowRef } from "react-slideshow-image";
 import { type IImage } from "./DragAndDrop";
 
 interface IFileProps {
-  // ref: React.RefObject<SlideshowRef>;
   files: IImage[];
-  index: number;
   setIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -14,7 +12,7 @@ export const Slideshow = forwardRef(function Slideshow(
   props: IFileProps,
   ref: React.Ref<SlideshowRef>
 ) {
-  const { files, index, setIndex } = props;
+  const { files, setIndex } = props;
 
   const properties = {
     ref: ref,
