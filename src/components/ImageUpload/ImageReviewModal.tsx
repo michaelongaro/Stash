@@ -78,6 +78,14 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
   const slideRef = useRef<SlideshowRef>(null);
   const reviewModalRef = useRef<HTMLDivElement>(null);
 
+  useScrollModalIntoView();
+
+  useOnClickOutside({
+    ref: reviewModalRef,
+    setter: setFiles,
+    hideModalValue: [],
+  });
+
   useEffect(() => {
     if (files.length > 0) {
       // maybe have && files.length !== imageData.length ?
@@ -98,8 +106,6 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
     }
   }, [files, imageData]);
 
-  useScrollModalIntoView();
-
   useEffect(() => {
     if (allUserFolders && allUserFolders.length > 0) {
       const folderData: ICreateSelectableOptions[] = [];
@@ -109,12 +115,6 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
       setFolderOptions(folderData);
     }
   }, [allUserFolders]);
-
-  useOnClickOutside({
-    ref: reviewModalRef,
-    setter: setFiles,
-    hideModalValue: [],
-  });
 
   const changeIndex = (moveForwardInArray: boolean) => {
     if (moveForwardInArray) {
@@ -140,7 +140,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
+      className="fixed top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
     >
       {imageData.length !== 0 && !startUploadOfImages && (
         <motion.div
@@ -175,12 +175,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             {`Upload${files.length > 1 ? " all" : ""}`}
           </button>
           <div className={classes.slideshow}>
-            <Slideshow
-              ref={slideRef}
-              files={files}
-              index={index}
-              setIndex={setIndex}
-            />
+            <Slideshow ref={slideRef} files={files} setIndex={setIndex} />
           </div>
           <div className={classes.filenameLabel}>Name</div>
           <div className={classes.filename}>{imageData[index]?.image.name}</div>
