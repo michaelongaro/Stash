@@ -100,7 +100,6 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   const createUser = trpc.images.createNewUser.useMutation({
     onSuccess(data) {
-      console.log(data?.id);
       if (data) {
         localStorage.setItem("userID", data.id);
         setCurrentUserID(data.id);
