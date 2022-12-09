@@ -257,6 +257,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
                   ? { label: "Public", value: true }
                   : { label: "Private", value: false }
               }
+              isSearchable={false}
               isDisabled={!session?.user?.id}
             />
           </div>
