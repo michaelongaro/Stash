@@ -56,8 +56,8 @@ function ImageEditorModal({
   if (!imageToBeEdited) return <></>;
 
   return (
-    <div className="absolute top-0 left-0 z-[500] flex h-full w-full items-center justify-center bg-blue-700/70 transition-all">
-      <div className="relative flex h-[80%] flex-col items-center justify-center overflow-x-scroll md:w-[95%] md:gap-0 lg:w-[80%] lg:gap-4">
+    <div className="fixed top-0 left-0 z-[500] flex h-full w-full items-center justify-center overflow-hidden bg-blue-700/70 transition-all">
+      <div className="relative flex h-[95%] flex-col items-center justify-center md:w-[95%] md:gap-0 lg:w-[80%] lg:gap-4">
         <FilerobotImageEditor
           key={imageEditorKey} // workaround to reset the editor when page is resized
           source={
@@ -103,7 +103,6 @@ function ImageEditorModal({
           defaultTabId={TABS.ADJUST}
           defaultToolId={TOOLS.CROP}
         />
-
         <button
           className="dangerBtn !mt-2 "
           onClick={() => setImageToBeEdited(undefined)}
