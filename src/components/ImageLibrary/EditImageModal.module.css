@@ -10,9 +10,47 @@
     "dateCreatedLabel dateCreatedValue . linkLabel linkValue . deleteButton deleteButton";
 }
 
+@media (max-width: 1250px) {
+  .editImageDetailsGrid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(9, 1fr);
+    grid-template-areas:
+      " saveButton saveButton  "
+      " editButton deleteButton  "
+      " editButton deleteButton "
+      " titleLabel titleInput  "
+      " descriptionLabel descriptionInput  "
+      " folderLabel folderDropdownInput  "
+      " visibilityLabel visibilityDowndownInput  "
+      " dateCreatedLabel dateCreatedValue  "
+      " linkLabel linkValue  ";
+    width: 70vw;
+  }
+}
+
+@media (max-width: 645px) {
+  .editImageDetailsGrid {
+    grid-template-rows: repeat(13, 1fr);
+    grid-template-areas:
+      " saveButton saveButton  "
+      " editButton editButton  "
+      " deleteButton deleteButton "
+      " titleLabel titleLabel  "
+      " titleInput titleInput  "
+      " descriptionLabel descriptionLabel "
+      " descriptionInput descriptionInput  "
+      " folderLabel folderLabel "
+      " folderDropdownInput folderDropdownInput "
+      " visibilityLabel visibilityLabel"
+      " visibilityDowndownInput visibilityDowndownInput  "
+      " dateCreatedLabel dateCreatedValue "
+      " linkLabel linkValue";
+    width: 95%;
+  }
+}
+
 .editImageDetailsGrid>* {
   display: flex;
-
   align-items: center;
 }
 
