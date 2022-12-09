@@ -198,7 +198,10 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
   useEffect(() => {
     setChangesMade(
       !isEqual(image, editedImageData) ||
-        image.folderID !== currentlySelectedFolder?.value ||
+        // would ideally like to change this logic below
+        (currentlySelectedFolder === null && image.folderID !== null) ||
+        (currentlySelectedFolder !== null &&
+          image.folderID !== currentlySelectedFolder.value) ||
         editedImageFile !== undefined
     );
   }, [image, editedImageData, currentlySelectedFolder, editedImageFile]);
@@ -220,7 +223,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
+      className="fixed top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
     >
       <motion.div
         key={image.id}
@@ -229,7 +232,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="relative m-6 flex max-h-[95vh] max-w-[85vw] flex-col items-center justify-start gap-4 overflow-y-scroll rounded-md bg-blue-400/90 p-10"
+        className="relative m-6 flex max-h-[95vh] flex-col items-center justify-start gap-4 overflow-y-scroll rounded-md bg-blue-400/90 p-10 sm:max-w-[95vw] lg:max-w-[85vw]"
       >
         <div
           className={`${classes.editImageDetailsGrid} rounded-md bg-blue-300 p-4`}
@@ -313,7 +316,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             )}
           </div>
           <div className={classes.folderLabel}>Folder</div>
-          <div className={classes.FolderDropdownInput}>
+          <div className={classes.folderDropdownInput}>
             <CreateSelectable
               isClearable
               styles={{
@@ -451,15 +454,8 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               edited image will be shown once changes are saved*
             </div>
           )}
-          {/* <Image
-            src={image.s3ImageURL}
-            alt={image.title ?? "uploaded image"}
-            width={500}
-            height={500}
-          /> */}
-
           <Image
-            className="cursor-pointer rounded-md shadow-lg" // h-auto w-full
+            className="rounded-md shadow-lg" // h-auto w-full
             src={image.s3ImageURL}
             alt={image?.title ?? "uploaded image"}
             width={500} // this will have to be caluclated based on screen width/individual grid cell size...
