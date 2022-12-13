@@ -2,7 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { type Image as IImage } from "@prisma/client";
 import { useSession } from "next-auth/react";
 
-import { FaTimes, FaEdit, FaCrop, FaTrash } from "react-icons/fa";
+import {
+  FaTimes,
+  FaEdit,
+  FaCrop,
+  FaTrash,
+  FaExternalLinkAlt,
+} from "react-icons/fa";
 
 import isEqual from "lodash.isequal";
 import S3 from "aws-s3";
@@ -15,13 +21,15 @@ import { visibilityOptions } from "../ImageUpload/ImageReviewModal";
 import Image from "next/image";
 import { trpc } from "../../utils/trpc";
 import CreateSelectable from "react-select/creatable";
-import { type ICreateSelectableOptions } from "../ImageUpload/ImageReviewModal";
+import { type IFolderOptions } from "../ImageUpload/ImageReviewModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 import classes from "./EditImageModal.module.css";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
+import ConfirmDeleteImageModal from "../modals/ConfirmDeleteImageModal";
+import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
 const config = {
   bucketName: "stash-resources",
@@ -42,18 +50,19 @@ interface IEditImageModal {
 }
 
 function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
+  const localStorageID = useLocalStorageContext();
   const { data: session } = useSession();
-  const { data: allUserFolders } = trpc.images.getUserFolders.useQuery();
+  const { data: allUserFolders } = trpc.images.getUserFolders.useQuery(
+    localStorageID?.value ?? session?.user?.id
+  );
   const utils = trpc.useContext();
 
   const [editedImageData, setEditedImageData] = useState<IImage>(image);
-  const [folderOptions, setFolderOptions] = useState<
-    ICreateSelectableOptions[]
-  >([]);
-  // separate state for folder because image only has folderID, and we need both the id
-  // and the title of the folder to be available in <CreateSelectable /> below
+  const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);
+
+  // state for CreateSelectable value
   const [currentlySelectedFolder, setCurrentlySelectedFolder] =
-    useState<ICreateSelectableOptions | null>(null);
+    useState<IFolderOptions | null>(null);
 
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
@@ -68,9 +77,13 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
 
   const [showDiscardChangesModal, setShowDiscardChangesModal] =
     useState<boolean>(false);
+  const [showConfirmDeleteImageModal, setShowConfirmDeleteImageModal] =
+    useState<boolean>(false);
   const [changesMade, setChangesMade] = useState<boolean>(false);
 
   const editImageDetailsRef = useRef<HTMLDivElement>(null);
+
+  const userID = localStorageID?.value ?? session?.user?.id;
 
   const createFolder = trpc.images.createFolder.useMutation({
     onMutate: () => {
@@ -109,27 +122,9 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     },
   });
 
-  const deleteImage = trpc.images.deleteImage.useMutation({
-    onMutate: () => {
-      utils.images.getUserImages.cancel();
-      const optimisticUpdate = utils.images.getUserImages.getData();
-
-      if (optimisticUpdate) {
-        utils.images.getUserImages.setData(optimisticUpdate);
-      }
-    },
-    onSuccess() {
-      setImageBeingEdited(undefined);
-    },
-    onSettled: () => {
-      utils.images.getUserImages.invalidate();
-      setImageBeingEdited(undefined);
-    },
-  });
-
   useEffect(() => {
     if (allUserFolders && allUserFolders.length > 0) {
-      const folderData: ICreateSelectableOptions[] = [];
+      const folderData: IFolderOptions[] = [];
       allUserFolders.map((folder) => {
         if (image.folderID === folder.id) {
           setCurrentlySelectedFolder({ value: folder.id, label: folder.title });
@@ -325,6 +320,9 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   color: "#1e3a8a",
                 }),
               }}
+              formatCreateLabel={(inputValue) =>
+                `Create folder "${inputValue}"`
+              }
               options={folderOptions}
               onChange={(newFolder) => {
                 if (newFolder?.label) {
@@ -345,10 +343,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
 
                   setCurrentlySelectedFolder({
                     label: newFolder.label,
-                    value:
-                      newFolder.value !== newFolder.label
-                        ? newFolder.value
-                        : undefined,
+                    value: newFolder.value,
                   });
                 } else {
                   // want to uncomment below once you have functionality to fully delete folder from this menu
@@ -385,7 +380,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   : { label: "Private", value: false }
               }
               isSearchable={false}
-              isDisabled={!session?.user?.id}
+              isDisabled={!userID}
             />
           </div>
           <div className={classes.dateCreatedLabel}>Date uploaded</div>
@@ -394,21 +389,15 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </div>
           <div className={classes.linkLabel}>Link</div>
           <div className={classes.linkValue}>
-            {/* click to copy here */}
             <a
-              href={`${
-                process.env.VERCEL_URL
-                  ? `https://${process.env.VERCEL_URL}`
-                  : `http://localhost:${process.env.PORT ?? 3000}`
-              }/${image.randomizedURL}`}
+              href={`${window.location}${image.randomizedURL}`}
               target="_blank"
               rel="noreferrer"
             >
-              {`${
-                process.env.VERCEL_URL
-                  ? `https://${process.env.VERCEL_URL}`
-                  : `http://localhost:${process.env.PORT ?? 3000}`
-              }/${image.randomizedURL}`}
+              <div className="flex items-center justify-center gap-2 underline underline-offset-4">
+                {`${window.location}${image.randomizedURL}`}
+                <FaExternalLinkAlt size={"1rem"} />
+              </div>
             </a>
           </div>
 
@@ -427,12 +416,13 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               // check if new folder was created -> needs to be .created -> get newId -> folderID: newId
               if (
                 currentlySelectedFolder &&
-                typeof currentlySelectedFolder.value === "undefined" &&
-                session?.user?.id
+                currentlySelectedFolder.value ===
+                  currentlySelectedFolder.label &&
+                userID
               ) {
                 createFolder.mutate({
                   title: currentlySelectedFolder.label,
-                  userID: session.user.id,
+                  userID: userID,
                 });
               } else {
                 setReadyToUpdate(true);
@@ -443,12 +433,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </button>
           <button
             className={`${classes.deleteButton} dangerBtn flex items-center justify-center gap-4`}
-            // should have a modal pop up that says "are you sure you want to delete this image?"
-            onClick={() =>
-              deleteImage.mutate({
-                id: image.id,
-              })
-            }
+            onClick={() => setShowConfirmDeleteImageModal(true)}
           >
             Delete image
             <FaTrash size={"1rem"} />
@@ -542,6 +527,21 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 </div>
               </motion.div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence
+          initial={false}
+          mode={"wait"}
+          onExitComplete={() => null}
+        >
+          {showConfirmDeleteImageModal && (
+            <ConfirmDeleteImageModal
+              setShowConfirmDeleteImageModal={setShowConfirmDeleteImageModal}
+              images={[image]}
+              setImageBeingEdited={setImageBeingEdited}
+              deleteOne={true}
+            />
           )}
         </AnimatePresence>
       </motion.div>
