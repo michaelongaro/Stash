@@ -28,7 +28,7 @@ import classes from "./EditImageModal.module.css";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
-import ConfirmDeleteImageModal from "../modals/ConfirmDeleteImageModal";
+import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
 const config = {
@@ -77,7 +77,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
 
   const [showDiscardChangesModal, setShowDiscardChangesModal] =
     useState<boolean>(false);
-  const [showConfirmDeleteImageModal, setShowConfirmDeleteImageModal] =
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] =
     useState<boolean>(false);
   const [changesMade, setChangesMade] = useState<boolean>(false);
 
@@ -434,7 +434,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </button>
           <button
             className={`${classes.deleteButton} dangerBtn flex items-center justify-center gap-4`}
-            onClick={() => setShowConfirmDeleteImageModal(true)}
+            onClick={() => setShowConfirmDeleteModal(true)}
           >
             Delete image
             <FaTrash size={"1rem"} />
@@ -536,12 +536,12 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           mode={"wait"}
           onExitComplete={() => null}
         >
-          {showConfirmDeleteImageModal && (
-            <ConfirmDeleteImageModal
-              setShowConfirmDeleteImageModal={setShowConfirmDeleteImageModal}
-              images={[image]}
-              setImageBeingEdited={setImageBeingEdited}
-              deleteOne={true}
+          {showConfirmDeleteModal && (
+            <ConfirmDeleteModal
+              type={"image"}
+              setShowConfirmDeleteModal={setShowConfirmDeleteModal}
+              idsToDelete={[image.id]}
+              afterImageDeletionCallback={setImageBeingEdited}
             />
           )}
         </AnimatePresence>
