@@ -88,9 +88,10 @@ input {
   background-color: #1e3a8a;
 }
 
-.primaryBtn:disabled {
+.primaryBtn:disabled,
+.secondaryBtn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .secondaryBtn {
