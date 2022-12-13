@@ -1,8 +1,7 @@
 import React, { useState, useRef } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
-// import { trpc } from "../../utils/trpc";
+import { signIn } from "next-auth/react";
 
-import { FaEnvelope, FaLock, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
@@ -10,10 +9,6 @@ import { dropIn } from "../../utils/framerMotionDropInStyles";
 interface ILogIn {
   gap: string;
 }
-// interface ICredentials {
-//   email: string;
-//   password: string;
-// }
 
 function LogIn({ gap }: ILogIn) {
   const signInRef = useRef<HTMLDivElement>(null);
@@ -23,11 +18,6 @@ function LogIn({ gap }: ILogIn) {
     setter: setShowModal,
     hideModalValue: false,
   });
-
-  // const [userCredentials, setUserCredentials] = useState<ICredentials>({
-  //   email: "",
-  //   password: "",
-  // });
 
   return (
     <>
@@ -50,6 +40,7 @@ function LogIn({ gap }: ILogIn) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            style={{ overflow: "hidden" }}
             className="absolute top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
           >
             <motion.div
@@ -66,62 +57,6 @@ function LogIn({ gap }: ILogIn) {
               >
                 <FaTimes size={"2rem"} style={{ cursor: "pointer" }} />
               </div>
-
-              {/* <form className="flex flex-col items-center justify-center gap-4">
-            <label className="flex items-center justify-center gap-3">
-              <FaEnvelope size={"1rem"} />
-              <input
-                className="pl-2 text-stone-800"
-                name="username"
-                type="text"
-                placeholder="Email"
-                required
-                onChange={(e) => {
-                  setUserCredentials({
-                    ...userCredentials,
-                    email: e.target.value,
-                  });
-                }}
-              />
-            </label>
-            <label className="flex items-center justify-center gap-3">
-              <FaLock size={"1rem"} />
-              <input
-                className="pl-2 text-stone-800"
-                name="password"
-                type="password"
-                placeholder="Password"
-                required
-                onChange={(e) => {
-                  setUserCredentials({
-                    ...userCredentials,
-                    password: e.target.value,
-                  });
-                }}
-              />
-            </label>
-            <button
-              className="rounded-md border-2 p-2"
-              type="submit"
-              onClick={(e) => {
-                e.preventDefault();
-
-                signIn("credentials", {
-                  email: userCredentials.email,
-                  password: userCredentials.password,
-                  // redirect: false,
-                });
-              }}
-            >
-              Sign in
-            </button>
-          </form>
-
-          <div className="flex items-center justify-center gap-2">
-            <div className="h-1 w-auto bg-blue-300"></div>
-            <div>or</div>
-            <div className="h-1 w-auto bg-blue-300"></div>
-          </div> */}
 
               <button
                 className="secondaryBtn flex items-center justify-center gap-4"
