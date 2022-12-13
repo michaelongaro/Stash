@@ -19,7 +19,7 @@ function StashLogoAnimation({ size }: IStashLogoAnimation) {
       <path
         d="M13.5 144L45.5 78.25L77.5 12.5L142.5 144"
         stroke="rgb(96 165 250)"
-        stroke-width="25"
+        strokeWidth="25"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
