@@ -33,14 +33,8 @@ export interface IFile {
 }
 
 export interface IFolderOptions {
-  title: string;
-  id?: string;
-}
-
-export interface ICreateSelectableOptions {
-  // workaround for CreateSelectable type issues
-  value?: string;
   label: string;
+  value: string;
 }
 
 export interface IVisibilityOptions {
@@ -62,11 +56,9 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
   const { data: allUserFolders } = trpc.images.getUserFolders.useQuery();
 
   const [imageData, setImageData] = useState<IFile[]>([]);
-  const [folderOptions, setFolderOptions] = useState<
-    ICreateSelectableOptions[]
-  >([]);
+  const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);
   const [createSelectableFolders, setCreateSelectableFolders] = useState<
-    ICreateSelectableOptions[]
+    IFolderOptions[]
   >([]); // workaround for CreateSelectable type issues
 
   const [index, setIndex] = useState<number>(0);
@@ -108,7 +100,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
   useEffect(() => {
     if (allUserFolders && allUserFolders.length > 0) {
-      const folderData: ICreateSelectableOptions[] = [];
+      const folderData: IFolderOptions[] = [];
       allUserFolders.map((folder) => {
         folderData.push({ value: folder.id, label: folder.title });
       });
@@ -229,12 +221,12 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           <div className={classes.folderDropdown}>
             <CreateableFolderDropdown
               index={index}
+              images={imageData}
+              setImages={setImageData}
               folderOptions={folderOptions}
               setFolderOptions={setFolderOptions}
               createSelectableFolders={createSelectableFolders}
               setCreateSelectableFolders={setCreateSelectableFolders}
-              imageData={imageData}
-              setImageData={setImageData}
             />
           </div>
           <div className={classes.visibilityLabel}>Visibility</div>

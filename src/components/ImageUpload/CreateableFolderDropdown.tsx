@@ -2,20 +2,18 @@ import React from "react";
 
 import CreateSelectable from "react-select/creatable";
 
-import { type ICreateSelectableOptions, type IFile } from "./ImageReviewModal";
+import { type IFolderOptions, type IFile } from "./ImageReviewModal";
 
 interface ICreateableFolderDropdown {
   index: number;
-  createSelectableFolders: ICreateSelectableOptions[];
+  createSelectableFolders: IFolderOptions[];
   setCreateSelectableFolders: React.Dispatch<
-    React.SetStateAction<ICreateSelectableOptions[]>
+    React.SetStateAction<IFolderOptions[]>
   >;
-  folderOptions: ICreateSelectableOptions[];
-  setFolderOptions: React.Dispatch<
-    React.SetStateAction<ICreateSelectableOptions[]>
-  >;
-  imageData: IFile[];
-  setImageData: React.Dispatch<React.SetStateAction<IFile[]>>;
+  folderOptions: IFolderOptions[];
+  setFolderOptions: React.Dispatch<React.SetStateAction<IFolderOptions[]>>;
+  images: IFile[];
+  setImages: React.Dispatch<React.SetStateAction<IFile[]>>;
 }
 
 function CreateableFolderDropdown({
@@ -24,8 +22,8 @@ function CreateableFolderDropdown({
   setCreateSelectableFolders,
   folderOptions,
   setFolderOptions,
-  imageData,
-  setImageData,
+  images,
+  setImages,
 }: ICreateableFolderDropdown) {
   return (
     <CreateSelectable
@@ -36,17 +34,17 @@ function CreateableFolderDropdown({
           color: "#1e3a8a",
         }),
       }}
+      formatCreateLabel={(inputValue) => `Create folder "${inputValue}"`}
       options={folderOptions}
       onChange={(newFolder) => {
         if (newFolder?.label) {
           // updating image data
-          const newImageData = [...imageData];
+          const newImageData = [...images];
           newImageData[index]!.folder = {
-            title: newFolder.label,
-            id:
-              newFolder.value !== newFolder.label ? newFolder.value : undefined,
+            label: newFolder.label,
+            value: newFolder.value,
           };
-          setImageData(newImageData);
+          setImages(newImageData);
 
           // updating list of folders in dropdown
           if (folderOptions.every((elem) => elem.label !== newFolder.label)) {
@@ -68,9 +66,9 @@ function CreateableFolderDropdown({
           setCreateSelectableFolders(newFolderData);
         } else {
           // deleting folder from image data
-          const newImageData = [...imageData];
+          const newImageData = [...images];
           delete newImageData[index]?.folder;
-          setImageData(newImageData);
+          setImages(newImageData);
 
           // want to uncomment below once you have functionality to fully delete folder from this menu
           // (assuming you want that funcitonality)
@@ -84,7 +82,7 @@ function CreateableFolderDropdown({
           setCreateSelectableFolders(newFolderData);
         }
       }}
-      value={createSelectableFolders[index] ?? null}
+      value={images[index]?.folder ?? null}
       placeholder="Optional"
     />
   );
