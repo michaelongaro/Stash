@@ -13,17 +13,25 @@ import {
   FaCheck,
 } from "react-icons/fa";
 import { AnimatePresence } from "framer-motion";
+import SelectedImages from "./SelectedImages";
+import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
 function Images() {
   // should eventually use status to show something while fetching whether user
   // is logged in or not
+  const localStorageID = useLocalStorageContext();
+
   const { data: session, status } = useSession();
   const utils = trpc.useContext();
 
   const { data: userImages, isLoading: isLoadingImages } =
-    trpc.images.getUserImages.useQuery(localStorage.getItem("userID"));
+    trpc.images.getUserImages.useQuery(
+      localStorageID?.value ?? session?.user?.id
+    );
   const { data: folders, isLoading: isLoadingFolders } =
-    trpc.images.getUserFolders.useQuery(localStorage.getItem("userID"));
+    trpc.images.getUserFolders.useQuery(
+      localStorageID?.value ?? session?.user?.id
+    );
 
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
 
@@ -39,6 +47,8 @@ function Images() {
   const [temporaryFolderData, setTemporaryFolderData] = useState<Folder | null>(
     null
   );
+
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
   const updateFolderData = trpc.images.updateFolderData.useMutation({
     onMutate: () => {
@@ -195,7 +205,7 @@ function Images() {
             </div>
           ) : (
             <>
-              <div className="pl-2 text-xl">Folders </div>
+              <div className="pl-2 text-xl">Folders</div>
               <div className="flex flex-wrap items-center justify-start gap-4 ">
                 {folders.map((folder) => {
                   return (
@@ -220,14 +230,29 @@ function Images() {
         </div>
       )}
 
+      <AnimatePresence
+        initial={false}
+        mode={"wait"}
+        onExitComplete={() => null}
+      >
+        {selectedImages && selectedImages.length > 0 && (
+          <SelectedImages
+            selectedImageIDs={selectedImages}
+            setSelectedImageIDs={setSelectedImages}
+          />
+        )}
+      </AnimatePresence>
+
       {imagesToShow && (
         <div className="m-6 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-          {imagesToShow.map((image) => {
+          {imagesToShow.map((image, index) => {
             return (
               <UploadedImage
-                image={image}
                 key={image.id}
+                image={image}
                 setImageBeingEdited={setImageBeingEdited}
+                selectedImages={selectedImages}
+                setSelectedImages={setSelectedImages}
               />
             );
           })}
