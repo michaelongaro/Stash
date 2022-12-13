@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 
@@ -9,19 +9,9 @@ import { ToastContainer } from "react-toastify";
 import { useLocalStorageContext } from "../context/LocalStorageContext";
 
 const Home = () => {
-  // def don't have to do, but could just have like a whole page spinner (component?)
-  // render out while status === loading
-
-  // ^^^^^ probably should do this
-
-  const localStorageID = useLocalStorageContext();
-
   const { data: session, status } = useSession();
-  const { data: images, isLoading: isLoadingImages } =
-    trpc.images.getUserImages.useQuery(
-      localStorageID?.value ?? session?.user?.id
-    );
   const utils = trpc.useContext();
+  const localStorageID = useLocalStorageContext();
 
   const transferImagesAndFolders =
     trpc.users.transferLocalImagesAndFoldersToNewAccount.useMutation({
