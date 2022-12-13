@@ -85,13 +85,13 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   });
 
   // could probably export this and not have to repeat in <EditImageModal />
-  const createFolder = trpc.images.createFolder.useMutation({
+  const createFolder = trpc.folders.createFolder.useMutation({
     onMutate: () => {
-      utils.images.getUserFolders.cancel();
-      const optimisticUpdate = utils.images.getUserFolders.getData();
+      utils.folders.getUserFolders.cancel();
+      const optimisticUpdate = utils.folders.getUserFolders.getData();
 
       if (optimisticUpdate) {
-        utils.images.getUserFolders.setData(optimisticUpdate);
+        utils.folders.getUserFolders.setData(optimisticUpdate);
       }
     },
     onSuccess(data) {
@@ -100,11 +100,11 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
       }
     },
     onSettled: () => {
-      utils.images.getUserFolders.invalidate();
+      utils.folders.getUserFolders.invalidate();
     },
   });
 
-  const createUser = trpc.images.createNewUser.useMutation({
+  const createUser = trpc.users.createNewUser.useMutation({
     onSuccess(data) {
       if (data) {
         localStorage.setItem("userID", data.id);

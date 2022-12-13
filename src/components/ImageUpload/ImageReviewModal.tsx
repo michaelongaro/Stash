@@ -53,7 +53,7 @@ const DynamicHeader = dynamic(() => import("./ImageEditorModal"), {
 
 function ImageReviewModal({ files, setFiles }: IFileProps) {
   const { data: session } = useSession();
-  const { data: allUserFolders } = trpc.images.getUserFolders.useQuery();
+  const { data: allUserFolders } = trpc.folders.getUserFolders.useQuery();
 
   const [imageData, setImageData] = useState<IFile[]>([]);
   const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);

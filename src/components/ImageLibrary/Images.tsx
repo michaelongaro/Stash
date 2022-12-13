@@ -29,7 +29,7 @@ function Images() {
       localStorageID?.value ?? session?.user?.id
     );
   const { data: folders, isLoading: isLoadingFolders } =
-    trpc.images.getUserFolders.useQuery(
+    trpc.folders.getUserFolders.useQuery(
       localStorageID?.value ?? session?.user?.id
     );
 
@@ -50,13 +50,13 @@ function Images() {
 
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
-  const updateFolderData = trpc.images.updateFolderData.useMutation({
+  const updateFolderData = trpc.folders.updateFolderData.useMutation({
     onMutate: () => {
-      utils.images.getUserFolders.cancel();
-      const optimisticUpdate = utils.images.getUserFolders.getData();
+      utils.folders.getUserFolders.cancel();
+      const optimisticUpdate = utils.folders.getUserFolders.getData();
 
       if (optimisticUpdate) {
-        utils.images.getUserFolders.setData(optimisticUpdate);
+        utils.folders.getUserFolders.setData(optimisticUpdate);
       }
     },
     onSuccess() {
@@ -64,26 +64,26 @@ function Images() {
       setEditingFolderData(false);
     },
     onSettled: () => {
-      utils.images.getUserFolders.invalidate();
+      utils.folders.getUserFolders.invalidate();
       setImageBeingEdited(undefined);
     },
   });
 
-  const deleteFolder = trpc.images.deleteFolder.useMutation({
+  const deleteFolder = trpc.folders.deleteFolder.useMutation({
     onMutate: () => {
-      utils.images.getUserFolders.cancel();
-      const optimisticUpdate = utils.images.getUserFolders.getData();
+      utils.folders.getUserFolders.cancel();
+      const optimisticUpdate = utils.folders.getUserFolders.getData();
 
       if (optimisticUpdate) {
-        utils.images.getUserFolders.setData(optimisticUpdate);
+        utils.folders.getUserFolders.setData(optimisticUpdate);
       }
     },
     onSuccess() {
-      utils.images.getUserFolders.invalidate();
+      utils.folders.getUserFolders.invalidate();
       setSelectedFolder(null);
     },
     onSettled: () => {
-      utils.images.getUserFolders.invalidate();
+      utils.folders.getUserFolders.invalidate();
       setImageBeingEdited(undefined);
     },
   });

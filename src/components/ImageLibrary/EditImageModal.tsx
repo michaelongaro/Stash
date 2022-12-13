@@ -52,7 +52,7 @@ interface IEditImageModal {
 function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
   const localStorageID = useLocalStorageContext();
   const { data: session } = useSession();
-  const { data: allUserFolders } = trpc.images.getUserFolders.useQuery(
+  const { data: allUserFolders } = trpc.folders.getUserFolders.useQuery(
     localStorageID?.value ?? session?.user?.id
   );
   const utils = trpc.useContext();
@@ -85,13 +85,13 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
 
   const userID = localStorageID?.value ?? session?.user?.id;
 
-  const createFolder = trpc.images.createFolder.useMutation({
+  const createFolder = trpc.folders.createFolder.useMutation({
     onMutate: () => {
-      utils.images.getUserFolders.cancel();
-      const optimisticUpdate = utils.images.getUserFolders.getData();
+      utils.folders.getUserFolders.cancel();
+      const optimisticUpdate = utils.folders.getUserFolders.getData();
 
       if (optimisticUpdate) {
-        utils.images.getUserFolders.setData(optimisticUpdate);
+        utils.folders.getUserFolders.setData(optimisticUpdate);
       }
     },
     onSuccess(data) {
@@ -100,7 +100,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
       }
     },
     onSettled: () => {
-      utils.images.getUserFolders.invalidate();
+      utils.folders.getUserFolders.invalidate();
     },
   });
 
@@ -118,6 +118,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     },
     onSettled: () => {
       utils.images.getUserImages.invalidate();
+      utils.images.retrieveImageFromFolder.invalidate();
       setImageBeingEdited(undefined);
     },
   });

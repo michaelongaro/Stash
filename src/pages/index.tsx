@@ -24,7 +24,7 @@ const Home = () => {
   const utils = trpc.useContext();
 
   const transferImagesAndFolders =
-    trpc.images.transferLocalImagesAndFoldersToNewAccount.useMutation({
+    trpc.users.transferLocalImagesAndFoldersToNewAccount.useMutation({
       onMutate: () => {
         utils.images.getUserImages.cancel();
         const optimisticUpdate = utils.images.getUserImages.getData();
