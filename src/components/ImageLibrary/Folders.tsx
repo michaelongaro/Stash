@@ -16,10 +16,16 @@ interface IFolders {
   selectedFolder: Folder | null;
   setSelectedFolder: React.Dispatch<React.SetStateAction<Folder | null>>;
   setImageBeingEdited: React.Dispatch<React.SetStateAction<Image | undefined>>;
+  setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
   folders: Folder[];
 }
 
-function Folders({ selectedFolder, setSelectedFolder, folders }: IFolders) {
+function Folders({
+  selectedFolder,
+  setSelectedFolder,
+  setSelectedImages,
+  folders,
+}: IFolders) {
   const utils = trpc.useContext();
 
   const [editingFolderData, setEditingFolderData] = useState<boolean>(false);
@@ -60,6 +66,7 @@ function Folders({ selectedFolder, setSelectedFolder, folders }: IFolders) {
             className="secondaryBtn flex items-center justify-center gap-2"
             onClick={() => {
               setSelectedFolder(null);
+              setSelectedImages([]);
             }}
           >
             <FaHome size={"1rem"} />
@@ -155,6 +162,7 @@ function Folders({ selectedFolder, setSelectedFolder, folders }: IFolders) {
                   className="secondaryBtn flex items-center justify-center gap-2"
                   onClick={() => {
                     setSelectedFolder(folder);
+                    setSelectedImages([]);
                   }}
                 >
                   <FaFolder size={"1rem"} />
