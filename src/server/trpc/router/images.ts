@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { router, publicProcedure } from "../trpc";
 
 export const imagesRouter = router({
   createNewUser: publicProcedure.mutation(async ({ ctx }) => {
@@ -16,7 +16,7 @@ export const imagesRouter = router({
       try {
         return await ctx.prisma.image.findMany({
           where: {
-            userID: ctx.session?.user?.id ?? input ?? "userID not found", // change later
+            userID: input ?? "userID not found", // change later
           },
         });
       } catch (error) {
@@ -30,7 +30,7 @@ export const imagesRouter = router({
       try {
         return await ctx.prisma.folder.findMany({
           where: {
-            userID: ctx.session?.user?.id ?? input ?? "userID not found", // change later
+            userID: input ?? "userID not found", // change later
           },
         });
       } catch (error) {
@@ -142,62 +142,42 @@ export const imagesRouter = router({
         console.log(error);
       }
     }),
-  transferUnregisteredUserDataToRealUserData: publicProcedure
+  transferLocalImagesAndFoldersToNewAccount: publicProcedure
     .input(
       z.object({
-        id: z.string(),
-        newlyAddedUserData: z.object({
-          id: z.string(),
-          image: z.string().optional().nullish(),
-          name: z.string().optional().nullish(),
-          email: z.string().email().optional().nullish(),
-        }),
+        oldID: z.string(),
+        newID: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("user data was:", ctx.session?.user, input);
-
       try {
-        // copying over all data from newly signed in user besides its cuid
-
-        console.log("user data was:", ctx.session?.user, input);
-
-        const user = await ctx.prisma.user.update({
+        await ctx.prisma.image.updateMany({
           where: {
-            id: input.id,
+            userID: input.oldID,
           },
           data: {
-            name: input.newlyAddedUserData.name ?? "name",
-            email: input.newlyAddedUserData.email ?? "email",
-            image: input.newlyAddedUserData.image ?? "image",
+            userID: input.newID,
           },
         });
 
-        // seems like a Prisma bug where regular update wouldn't work
-        const session = await ctx.prisma.session.updateMany({
+        await ctx.prisma.folder.updateMany({
           where: {
-            userId: input.newlyAddedUserData.id,
+            userID: input.oldID,
           },
           data: {
-            userId: input.id ?? "idz",
+            userID: input.newID,
           },
         });
 
-        // seems like a Prisma bug where regular update wouldn't work
-        const account = await ctx.prisma.account.updateMany({
+        // delete old user
+        await ctx.prisma.user.delete({
           where: {
-            userId: input.newlyAddedUserData.id,
-          },
-          data: {
-            userId: input.id ?? "idz",
+            id: input.oldID,
           },
         });
-
-        return { user: user, session: session, account: account };
       } catch (error) {
         console.log(error);
       }
-      return "found NOTHING";
     }),
   deleteImage: publicProcedure
     .input(
@@ -232,6 +212,44 @@ export const imagesRouter = router({
           },
         });
         return folder;
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+  moveSelectedImagesToFolder: publicProcedure
+    .input(
+      z.object({
+        idsToUpdate: z.array(z.string()),
+        folderID: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.image.updateMany({
+          where: {
+            id: { in: input.idsToUpdate },
+          },
+          data: {
+            folderID: input.folderID,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+  deleteSelectedImages: publicProcedure
+    .input(
+      z.object({
+        idsToUpdate: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.image.deleteMany({
+          where: {
+            id: { in: input.idsToUpdate },
+          },
+        });
       } catch (error) {
         console.log(error);
       }
