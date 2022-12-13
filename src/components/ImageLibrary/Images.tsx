@@ -79,6 +79,7 @@ function Images() {
       }
     },
     onSuccess() {
+      utils.images.getUserFolders.invalidate();
       setSelectedFolder(null);
     },
     onSettled: () => {
