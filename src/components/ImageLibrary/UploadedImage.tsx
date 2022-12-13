@@ -6,6 +6,8 @@ import Image from "next/image";
 import { trpc } from "../../utils/trpc";
 import { toast } from "react-toastify";
 import { isMobile } from "react-device-detect";
+import { motion } from "framer-motion";
+import { dropIn } from "../../utils/framerMotionDropInStyles";
 
 interface IUploadedImage {
   image: PrismaImage;
@@ -55,7 +57,12 @@ function UploadedImage({
   }, [selectedImages, image]);
 
   return (
-    <div
+    <motion.div
+      key={image.id}
+      variants={dropIn}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
       className="relative flex items-center justify-center rounded-md transition-all hover:bg-blue-200"
       onMouseEnter={() => setHoveringOnImage(true)}
       onMouseLeave={() => setHoveringOnImage(false)}
@@ -71,7 +78,7 @@ function UploadedImage({
               ? "-10px"
               : topControlsContainerRef.current
               ? `${
-                  -1 *
+                  -0.4 *
                   topControlsContainerRef.current?.getBoundingClientRect()
                     .height
                 }px`
@@ -160,7 +167,7 @@ function UploadedImage({
               ? "-10px"
               : bottomControlsContainerRef.current
               ? `${
-                  -1 *
+                  -0.4 *
                   bottomControlsContainerRef.current?.getBoundingClientRect()
                     .height
                 }px`
@@ -199,7 +206,7 @@ function UploadedImage({
           <FaLink size={"1rem"} />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
