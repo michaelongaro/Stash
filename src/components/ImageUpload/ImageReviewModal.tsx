@@ -128,7 +128,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
   return (
     <motion.div
-      key={files[0]?.size}
+      key={"outerReviewModal"}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -136,7 +136,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
     >
       {imageData.length !== 0 && !startUploadOfImages && (
         <motion.div
-          key={imageData[0]?.image.lastModified}
+          key={"innerReviewModal"}
           ref={reviewModalRef}
           variants={dropIn}
           initial="hidden"
@@ -167,7 +167,12 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             {`Upload${files.length > 1 ? " all" : ""}`}
           </button>
           <div className={classes.slideshow}>
-            <Slideshow ref={slideRef} files={files} setIndex={setIndex} />
+            <Slideshow
+              key={files[files.length - 1]?.size}
+              ref={slideRef}
+              files={files}
+              setIndex={setIndex}
+            />
           </div>
           <div className={classes.filenameLabel}>Name</div>
           <div className={classes.filename}>{imageData[index]?.image.name}</div>
