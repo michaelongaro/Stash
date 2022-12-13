@@ -96,7 +96,7 @@ function ConfirmDeleteModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute top-0 left-0 z-[500] flex h-full w-full items-center justify-center bg-blue-700/70 transition-all"
+      className="fixed top-0 left-0 z-[500] flex h-full w-full items-center justify-center bg-blue-700/70 transition-all"
     >
       <motion.div
         key={"confirmDeleteInner"}
