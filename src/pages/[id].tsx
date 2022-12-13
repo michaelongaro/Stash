@@ -4,6 +4,7 @@ import { trpc } from "../utils/trpc";
 import { useSession } from "next-auth/react";
 import { FaLock } from "react-icons/fa";
 import Image from "next/image";
+import LogIn from "../components/auth/LogIn";
 
 function SharedImage() {
   const router = useRouter();
@@ -48,9 +49,10 @@ function SharedImage() {
       )}
 
       {unauthorizedToViewImage && (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-md bg-slate-200 p-4 text-3xl text-blue-700">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-md bg-slate-200 p-4 text-xl text-blue-700">
           <FaLock size={"2rem"} />
           You do not have access to view this image.
+          <LogIn gap={"1.5rem"} />
         </div>
       )}
     </div>
