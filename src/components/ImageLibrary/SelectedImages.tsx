@@ -68,19 +68,15 @@ function SelectedImages({
   const moveSelectedImagesToFolder =
     trpc.images.moveSelectedImagesToFolder.useMutation({
       onMutate: () => {
-        utils.images.getUserImages.cancel();
-        const optimisticUpdate = utils.images.getUserImages.getData();
+        utils.images.retrieveImageFromFolder.cancel();
+        const optimisticUpdate = utils.images.retrieveImageFromFolder.getData();
 
         if (optimisticUpdate) {
-          utils.images.getUserImages.setData(optimisticUpdate);
+          utils.images.retrieveImageFromFolder.setData(optimisticUpdate);
         }
       },
-      onSuccess() {
-        setShowCreateSelectableDropdown(false);
-        setSelectedImageIDs([]);
-      },
       onSettled: () => {
-        utils.images.getUserImages.invalidate();
+        utils.images.retrieveImageFromFolder.invalidate();
         setShowCreateSelectableDropdown(false); // needed?
         setSelectedImageIDs([]);
       },
