@@ -110,10 +110,14 @@ function DragAndDrop({
     <div
       className={`${getContainerClass(
         renderedLocation
-      )} container flex items-center justify-center rounded-md bg-blue-300 p-1 transition-all`}
+      )} container flex items-center justify-center rounded-md bg-blue-300 p-1`}
     >
       <div
-        style={{ borderColor: borderColor }}
+        style={{
+          borderColor: borderColor,
+          boxShadow: borderColor !== "#bfbfbf" ? "0 0 10px 4px #d7d7d7" : "",
+          transition: "box-shadow 0.3s ease-in-out",
+        }}
         {...getRootProps({
           className: `${classes.dropzone} ${getRootClass(
             renderedLocation
