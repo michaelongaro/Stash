@@ -106,17 +106,14 @@ function DragAndDrop({
     }
   }
 
-  // if designated as used in modal:
-  // then just do above then setFiles(oldFiles => [...oldFiles, newFiles])
-
   return (
-    // leave as a "section" tag?
-    <section
+    <div
       className={`${getContainerClass(
         renderedLocation
       )} container flex items-center justify-center rounded-md bg-blue-300 p-1 transition-all`}
     >
       <div
+        style={{ borderColor: borderColor }}
         {...getRootProps({
           className: `${classes.dropzone} ${getRootClass(
             renderedLocation
@@ -147,7 +144,7 @@ function DragAndDrop({
           <ImageReviewModal files={files} setFiles={setFiles} />
         )}
       </AnimatePresence>
-    </section>
+    </div>
   );
 }
 
