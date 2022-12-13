@@ -54,6 +54,7 @@ function Images() {
           folders={folders}
           selectedFolder={selectedFolder}
           setSelectedFolder={setSelectedFolder}
+          setSelectedImages={setSelectedImages}
           setImageBeingEdited={setImageBeingEdited}
         />
       )}
