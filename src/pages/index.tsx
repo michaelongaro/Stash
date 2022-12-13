@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 
 import HomePage from "../components/HomePage";
 import ImageLibrary from "../components/ImageLibrary/ImageLibrary";
 import { trpc } from "../utils/trpc";
 import { ToastContainer } from "react-toastify";
+import { useLocalStorageContext } from "../context/LocalStorageContext";
 
 const Home = () => {
   // def don't have to do, but could just have like a whole page spinner (component?)
   // render out while status === loading
 
-  const [localStorageUserID, setLocalStorageUserID] = useState<string | null>(
-    null
-  );
+  // ^^^^^ probably should do this
 
-  useEffect(() => {
-    setLocalStorageUserID(localStorage.getItem("userID"));
-  }, []);
+  const localStorageID = useLocalStorageContext();
 
   const { data: session, status } = useSession();
   const { data: images, isLoading: isLoadingImages } =
-    trpc.images.getUserImages.useQuery(localStorageUserID); // maybe want to check if status === "loading" and if so just do "" idk
+    trpc.images.getUserImages.useQuery(
+      localStorageID?.value ?? session?.user?.id
+    );
   const utils = trpc.useContext();
 
-  const transferUnregisteredUserDataToRealUserData =
-    trpc.images.transferUnregisteredUserDataToRealUserData.useMutation({
+  const transferImagesAndFolders =
+    trpc.images.transferLocalImagesAndFoldersToNewAccount.useMutation({
       onMutate: () => {
         utils.images.getUserImages.cancel();
         const optimisticUpdate = utils.images.getUserImages.getData();
@@ -33,12 +33,9 @@ const Home = () => {
           utils.images.getUserImages.setData(optimisticUpdate);
         }
       },
-      onSuccess: (data) => {
-        // delete newly created user from db here
-        console.log("data returned", data);
-
+      onSuccess: () => {
         localStorage.removeItem("userID");
-        setLocalStorageUserID(null);
+        localStorageID?.setValue(null);
       },
       onSettled: () => {
         utils.images.getUserImages.invalidate();
@@ -48,26 +45,13 @@ const Home = () => {
   // completes transfer of unregistered user information to
   // new signed in user account in db
   useEffect(() => {
-    if (
-      session?.user?.id &&
-      localStorageUserID &&
-      images &&
-      images.length === 0
-    ) {
-      console.log(
-        "moving forward because",
-        session?.user?.id,
-        localStorageUserID,
-        images,
-        images.length
-      );
-
-      transferUnregisteredUserDataToRealUserData.mutate({
-        id: localStorageUserID,
-        newlyAddedUserData: session.user,
+    if (session?.user?.id && localStorageID?.value) {
+      transferImagesAndFolders.mutate({
+        oldID: localStorageID?.value,
+        newID: session.user.id,
       });
     }
-  }, [session, localStorageUserID, images]);
+  }, [session, localStorageID?.value]);
 
   if (status === "loading") {
     // return <main className="flex flex-col items-center pt-4">Loading...</main>;
@@ -76,11 +60,16 @@ const Home = () => {
 
   return (
     <>
-      {session || localStorage.getItem("userID") ? (
-        <ImageLibrary />
-      ) : (
-        <HomePage />
-      )}
+      <Head>
+        <title>Stash</title>
+        <meta
+          property="og:title"
+          content="Store all of your images for free with Stash, an image editing, hosting and sharing website."
+          key="title"
+        />
+        <meta name="theme-color" content="rgb(37 99 235)" />
+      </Head>
+      {session || localStorageID?.value ? <ImageLibrary /> : <HomePage />}
       <ToastContainer limit={3} />
     </>
   );
