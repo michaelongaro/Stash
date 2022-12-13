@@ -126,7 +126,10 @@
 }
 
 /* add these to HTML later */
-.flexModalDiv {
+.titleLabel,
+.descriptionLabel,
+.folderLabel,
+.visibilityLabel {
   display: flex;
   justify-content: flex-start;
   align-items: center;
