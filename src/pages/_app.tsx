@@ -5,6 +5,8 @@ import { Varela_Round } from "@next/font/google";
 
 import { trpc } from "../utils/trpc";
 
+import { LocalStorageProvider } from "../context/LocalStorageContext";
+
 import "../components/ImageUpload/SlideshowStyles.css";
 import "react-slideshow-image/dist/styles.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,11 +22,13 @@ const MyApp: AppType<{ session: Session | null }> = ({
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session}>
-      <main className={varelaRound.className}>
-        <Component {...pageProps} />
-      </main>
-    </SessionProvider>
+    <LocalStorageProvider>
+      <SessionProvider session={session}>
+        <main className={varelaRound.className}>
+          <Component {...pageProps} />
+        </main>
+      </SessionProvider>
+    </LocalStorageProvider>
   );
 };
 
