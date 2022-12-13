@@ -7,6 +7,7 @@ import cryptoRandomString from "crypto-random-string";
 import { type IFile } from "./ImageReviewModal";
 import { type IImage } from "./DragAndDrop";
 import { useSession } from "next-auth/react";
+import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
 import StashLogoAnimation from "../logo/StashLogoAnimation";
@@ -33,6 +34,7 @@ interface IUploadProgressModal {
 function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   const { data: session, status } = useSession();
   const utils = trpc.useContext();
+  const localStorageID = useLocalStorageContext();
 
   const [s3URLs, setS3URLs] = useState<string[]>([]);
   const [uploadsHaveStarted, setUploadsHaveStarted] = useState<boolean>(false);
@@ -42,7 +44,6 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   const [numImagesInsertedIntoDatabase, setNumImagesInsertedIntoDatabase] =
     useState<number>(0);
 
-  // const [newUserID, setNewUserID] = useState<string>();
   const [currentUserID, setCurrentUserID] = useState<string | null>(
     localStorage.getItem("userID")
   );
@@ -56,7 +57,12 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   // destroys component when all images are inside the database
   if (numImagesInsertedIntoDatabase === files.length && files.length !== 0) {
     document.body.style.overflow = "auto";
-    setInterval(() => setFiles([]), 3000);
+    setInterval(() => {
+      if (!session?.user) {
+        localStorageID?.setValue(currentUserID);
+      }
+      setFiles([]);
+    }, 3000);
   }
 
   // optimistic updating
@@ -107,9 +113,6 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
     },
   });
 
-  // currently uploading the image(s) twice... has to be from useEffect below but not
-  // sure exactly what is causing that
-
   useEffect(() => {
     if (
       newlyAddedFolderID &&
@@ -133,29 +136,35 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   useEffect(() => {
     if (files.length > 0 && !uploadsHaveStarted) {
+      setUploadsHaveStarted(true);
+
       // maybe this is due to react strictmode being called twice..
       files.map((file) => {
-        setUploadsHaveStarted(true);
         S3Client.uploadFile(file.image.imageFile).then((res: IS3Response) =>
           setS3URLs((currentS3URLs) => [...currentS3URLs, res.location])
         );
         // .catch((err) => console.error(err)); find out how to type "err"
       });
     }
+
+    return () => {
+      setUploadsHaveStarted(true); // probably not right way to do this
+    };
   }, [files, uploadsHaveStarted]);
 
   useEffect(() => {
     if (s3URLs.length === files.length && currentUserID) {
-      // switch back to "===" when you figure out double upload issue
       files.map((file, i) => {
-        if (file.folder && typeof file.folder.id === "undefined") {
+        if (file.folder && file.folder.value === file.folder.label) {
           createFolder.mutate({
-            title: file.folder.title,
+            title: file.folder.label,
             userID: currentUserID,
           });
-        }
-        // HAS to be a better/quicker way to narrow that down...
-        else if (file.folder && file.folder.id && file.folder.id.length > 0) {
+        } else if (
+          file.folder &&
+          file.folder.value &&
+          file.folder.value.length > 0
+        ) {
           addImage.mutate({
             s3ImageURL: s3URLs[i] ?? "changeLater",
             randomizedURL: cryptoRandomString({ length: 5 }),
@@ -163,7 +172,7 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
             description: file.description,
             isPublic: file.isPublic,
             userID: currentUserID,
-            folderID: file.folder.id,
+            folderID: file.folder.value,
           });
         } else {
           addImage.mutate({
