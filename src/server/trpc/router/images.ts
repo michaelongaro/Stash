@@ -220,7 +220,7 @@ export const imagesRouter = router({
     .input(
       z.object({
         idsToUpdate: z.array(z.string()),
-        folderID: z.string(),
+        folderID: z.string().nullish().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
