@@ -30,6 +30,9 @@ function SelectedImages({
   const [showCreateSelectableDropdown, setShowCreateSelectableDropdown] =
     useState<boolean>(false);
 
+  const [newlyAddedFolderID, setNewlyAddedFolderID] = useState<string>();
+  const [readyToUpdate, setReadyToUpdate] = useState<boolean>(false);
+
   useEffect(() => {
     if (allUserFolders && allUserFolders.length > 0) {
       const folderData: IFolderOptions[] = [];
@@ -39,6 +42,25 @@ function SelectedImages({
       setFolderOptions(folderData);
     }
   }, [allUserFolders]);
+
+  const createFolder = trpc.images.createFolder.useMutation({
+    onMutate: () => {
+      utils.images.getUserFolders.cancel();
+      const optimisticUpdate = utils.images.getUserFolders.getData();
+
+      if (optimisticUpdate) {
+        utils.images.getUserFolders.setData(optimisticUpdate);
+      }
+    },
+    onSuccess(data) {
+      if (data && data.id.length > 0) {
+        setNewlyAddedFolderID(data.id);
+      }
+    },
+    onSettled: () => {
+      utils.images.getUserFolders.invalidate();
+    },
+  });
 
   const moveSelectedImagesToFolder =
     trpc.images.moveSelectedImagesToFolder.useMutation({
@@ -80,6 +102,40 @@ function SelectedImages({
       setSelectedImageIDs([]);
     },
   });
+
+  // probably redo these two effects later
+  useEffect(() => {
+    if (newlyAddedFolderID && newlyAddedFolderID.length > 0) {
+      setReadyToUpdate(true);
+
+      // try to use setState callback to set currentlySelectedFolder later
+      if (currentlySelectedFolder?.label) {
+        let prevFolderState = { ...currentlySelectedFolder };
+        prevFolderState = {
+          label: currentlySelectedFolder.label,
+          value: newlyAddedFolderID,
+        };
+        setCurrentlySelectedFolder(prevFolderState);
+      }
+    }
+  }, [currentlySelectedFolder, newlyAddedFolderID]);
+
+  useEffect(() => {
+    if (readyToUpdate) {
+      // check if image was edited -> needs to be uploaded to s3 -> store new url in db
+
+      moveSelectedImagesToFolder.mutate({
+        idsToUpdate: selectedImageIDs,
+        folderID:
+          newlyAddedFolderID ?? currentlySelectedFolder?.value?.length
+            ? currentlySelectedFolder?.value
+            : null,
+      });
+
+      setReadyToUpdate(false);
+      setNewlyAddedFolderID(undefined); // necessary?
+    }
+  }, [newlyAddedFolderID, readyToUpdate, currentlySelectedFolder]);
 
   return (
     <motion.div
@@ -164,10 +220,19 @@ function SelectedImages({
               disabled={!currentlySelectedFolder}
               onClick={() => {
                 if (currentlySelectedFolder) {
-                  moveSelectedImagesToFolder.mutate({
-                    idsToUpdate: selectedImageIDs,
-                    folderID: currentlySelectedFolder.value,
-                  });
+                  if (
+                    currentlySelectedFolder &&
+                    currentlySelectedFolder.value ===
+                      currentlySelectedFolder.label &&
+                    (localStorageID?.value || session?.user?.id)
+                  ) {
+                    createFolder.mutate({
+                      title: currentlySelectedFolder.label,
+                      userID: localStorageID?.value ?? session?.user?.id ?? "",
+                    });
+                  } else {
+                    setReadyToUpdate(true);
+                  }
                 }
               }}
             >
