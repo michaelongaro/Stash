@@ -88,7 +88,16 @@ function UploadedImage({
         }}
         className={`absolute left-0 flex w-full items-center justify-between gap-4 rounded-tl-md rounded-tr-md bg-blue-400 pl-4 pr-4 pt-1 pb-1 transition-all`}
       >
-        <div>{image.title}</div>
+        <div
+          style={{
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "block",
+          }}
+        >
+          {image.title}
+        </div>
         <div className="align-center flex justify-center gap-2">
           <button
             className="secondaryBtn"
