@@ -153,6 +153,8 @@
 
 .slideshow {
   grid-area: slideshow;
+  max-width: 100%;
+  /* without this the slideshow will be too wide on firefox */
 }
 
 .filenameLabel {
