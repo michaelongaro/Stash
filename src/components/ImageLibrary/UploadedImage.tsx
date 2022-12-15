@@ -110,6 +110,7 @@ function UploadedImage({
         <div className="align-center flex justify-center gap-2">
           <button
             className="secondaryBtn"
+            aria-label="Toggle visibility of image between public and private"
             onMouseEnter={() => setHoveringOnLockButton(true)}
             onMouseLeave={() => setHoveringOnLockButton(false)}
             onClick={() =>
@@ -141,6 +142,7 @@ function UploadedImage({
           <div className="flex items-center justify-center">
             <input
               className="h-[1.25rem] w-[1.25rem]"
+              aria-label="select image toggle"
               type="checkbox"
               checked={selectedImages.includes(image.id)}
               onChange={() =>
@@ -195,6 +197,7 @@ function UploadedImage({
       >
         <button
           className="secondaryBtn"
+          aria-label="Edit image details"
           onClick={() => setImageBeingEdited(image)}
         >
           Edit
@@ -202,6 +205,7 @@ function UploadedImage({
 
         <button
           className="secondaryBtn"
+          aria-label="copy sharable link to clipboard"
           onClick={() => {
             navigator.clipboard.writeText(
               `${window.location}${image.randomizedURL}`

@@ -272,6 +272,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 />
                 <button
                   className="secondaryBtn"
+                  aria-label="Cancel"
                   onClick={() => {
                     const newImageData = { ...editedImageData };
                     newImageData.title = image.title;
@@ -287,6 +288,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 {image.title}
                 <button
                   className="secondaryBtn"
+                  aria-label="Edit"
                   onClick={() => setEditingTitle(true)}
                 >
                   <FaEdit size={"1rem"} />
@@ -311,6 +313,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 />
                 <button
                   className="secondaryBtn"
+                  aria-label="Cancel"
                   onClick={() => {
                     const newImageData = { ...editedImageData };
                     newImageData.description = image.description;
@@ -326,6 +329,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 {image.description}
                 <button
                   className="secondaryBtn"
+                  aria-label="Edit"
                   onClick={() => setEditingDescription(true)}
                 >
                   <FaEdit size={"1rem"} />
@@ -426,6 +430,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
 
           <button
             className={`${classes.editButton} secondaryBtn flex items-center justify-center gap-4`}
+            aria-label="Edit Image"
             onClick={() => setImageToBeEdited(image.s3ImageURL)}
           >
             Edit image
@@ -433,6 +438,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </button>
           <button
             className={`${classes.saveButton} primaryBtn`}
+            aria-label="Save Changes"
             disabled={!changesMade}
             onClick={() => {
               // before updating, need to:
@@ -456,6 +462,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </button>
           <button
             className={`${classes.deleteButton} dangerBtn flex items-center justify-center gap-4`}
+            aria-label="Delete Image"
             onClick={() => setShowConfirmDeleteModal(true)}
           >
             Delete image
@@ -532,6 +539,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 <div className="flex items-center justify-center gap-2">
                   <button
                     className="primaryBtn"
+                    aria-label="continue editing"
                     onClick={() => {
                       setShowDiscardChangesModal(false);
                     }}
@@ -540,6 +548,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   </button>
                   <button
                     className="secondaryBtn"
+                    aria-label="discard changes"
                     onClick={() => {
                       setImageBeingEdited(undefined);
                     }}

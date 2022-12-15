@@ -53,9 +53,8 @@ const Home = () => {
       <Head>
         <title>Stash</title>
         <meta
-          property="og:title"
+          name="description"
           content="Store all of your images for free with Stash, an image editing, hosting and sharing website."
-          key="title"
         />
         <meta name="theme-color" content="rgb(37 99 235)" />
       </Head>

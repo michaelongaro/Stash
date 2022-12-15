@@ -64,6 +64,7 @@ function Folders({
         <div className="flex flex-col items-center justify-start gap-4 sm:flex-row">
           <button
             className="secondaryBtn flex items-center justify-center gap-2"
+            aria-label="Back to home"
             onClick={() => {
               setSelectedFolder(null);
               setSelectedImages([]);
@@ -95,6 +96,7 @@ function Folders({
                   <div className="flex items-center justify-center gap-2">
                     <button
                       className="secondaryBtn"
+                      aria-label="Cancel"
                       onClick={() => {
                         const newFolderData = { ...selectedFolder };
                         newFolderData.title = selectedFolder.title;
@@ -106,6 +108,7 @@ function Folders({
                     </button>
                     <button
                       className="secondaryBtn"
+                      aria-label="Save"
                       onClick={() => {
                         // call update folder mutation here
                         if (temporaryFolderData) {
@@ -123,6 +126,7 @@ function Folders({
 
                   <button
                     className="dangerBtn"
+                    aria-label="Delete"
                     onClick={() => setShowConfirmDeleteModal(true)}
                   >
                     <FaTrash size={"1rem"} />
@@ -135,6 +139,7 @@ function Folders({
                   <div>{selectedFolder.title}</div>
                   <button
                     className="secondaryBtn"
+                    aria-label="Edit"
                     onClick={() => setEditingFolderData(true)}
                   >
                     <FaEdit size={"1rem"} />
@@ -142,6 +147,7 @@ function Folders({
 
                   <button
                     className="dangerBtn"
+                    aria-label="Delete"
                     onClick={() => setShowConfirmDeleteModal(true)}
                   >
                     <FaTrash size={"1rem"} />
@@ -160,6 +166,7 @@ function Folders({
                 <button
                   key={folder.id}
                   className="secondaryBtn flex items-center justify-center gap-2"
+                  aria-label="open folder"
                   onClick={() => {
                     setSelectedFolder(folder);
                     setSelectedImages([]);

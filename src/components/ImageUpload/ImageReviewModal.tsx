@@ -156,6 +156,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           } of ${files.length})`}</div>
           <button
             className={`${classes.editButton} secondaryBtn flex items-center justify-center gap-4`}
+            aria-label="Edit image"
             onClick={() =>
               setImageToBeEdited(imageData[index]?.image.imageFile)
             }
@@ -166,6 +167,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
           <button
             className={`${classes.upload} primaryBtn`}
+            aria-label="Upload image(s)"
             onClick={() => setStartUploadOfImages(true)}
           >
             {`Upload${files.length > 1 ? " all" : ""}`}
@@ -213,6 +215,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
           <button
             className={`${classes.removeImageFromUploadButton} dangerBtn flex items-center justify-center gap-2`}
+            aria-label="Remove image from upload"
             onClick={() => {
               setFiles((currentFiles) =>
                 currentFiles.filter((value, i) => i !== index)
@@ -265,6 +268,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
           <button
             className={`${classes.previousButton} secondaryBtn`}
+            aria-label="Previous image"
             onClick={() => changeIndex(false)}
           >
             Prev
@@ -280,6 +284,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           </div>
           <button
             className={`${classes.nextButton} secondaryBtn`}
+            aria-label="Next image"
             onClick={() => changeIndex(true)}
           >
             Next

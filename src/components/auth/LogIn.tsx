@@ -22,10 +22,18 @@ function LogIn({ gap }: ILogIn) {
   return (
     <>
       <div style={{ gap: gap }} className="flex items-center justify-center">
-        <button className="primaryBtn" onClick={() => setShowModal(true)}>
+        <button
+          className="primaryBtn"
+          aria-label="Sign Up"
+          onClick={() => setShowModal(true)}
+        >
           Sign Up
         </button>
-        <button className="secondaryBtn" onClick={() => setShowModal(true)}>
+        <button
+          className="secondaryBtn"
+          aria-label="Log In"
+          onClick={() => setShowModal(true)}
+        >
           Log In
         </button>
       </div>
@@ -60,6 +68,7 @@ function LogIn({ gap }: ILogIn) {
 
               <button
                 className="secondaryBtn flex items-center justify-center gap-4"
+                aria-label="Sign in with Google"
                 onClick={() => signIn("google")}
               >
                 Sign in with
@@ -94,6 +103,7 @@ function LogIn({ gap }: ILogIn) {
 
               <button
                 className="secondaryBtn flex items-center justify-center gap-4"
+                aria-label="Sign in with Discord"
                 onClick={() => signIn("discord")}
               >
                 Sign in with

@@ -38,7 +38,11 @@ function Navbar() {
           </div>
         </div>
         {session?.user?.id ? (
-          <button className="secondaryBtn" onClick={() => signOut()}>
+          <button
+            className="secondaryBtn"
+            aria-aria-label="Log out"
+            onClick={() => signOut()}
+          >
             Log out
           </button>
         ) : (

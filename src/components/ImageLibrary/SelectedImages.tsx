@@ -135,6 +135,7 @@ function SelectedImages({
             display: showCreateSelectableDropdown ? "none" : "flex",
           }}
           className="secondaryBtn flex items-center justify-center gap-2"
+          aria-label="Move to folder"
           onClick={() => setShowCreateSelectableDropdown(true)}
         >
           <FaFolderOpen size={"1rem"} />
@@ -193,6 +194,7 @@ function SelectedImages({
             <div className="flex items-center justify-center gap-1">
               <button
                 className="secondaryBtn"
+                aria-label="Cancel"
                 onClick={() => {
                   setShowCreateSelectableDropdown(false);
                 }}
@@ -201,6 +203,7 @@ function SelectedImages({
               </button>
               <button
                 className="secondaryBtn"
+                aria-label="Confirm"
                 disabled={!currentlySelectedFolder}
                 onClick={() => {
                   if (currentlySelectedFolder) {
@@ -229,6 +232,7 @@ function SelectedImages({
 
         <button
           className="dangerBtn"
+          aria-label="Delete"
           onClick={() => {
             setShowConfirmDeleteModal(true);
           }}

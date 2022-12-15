@@ -105,6 +105,7 @@ function ImageEditorModal({
         />
         <button
           className="dangerBtn !mt-2 "
+          aria-label="Discard changes"
           onClick={() => setImageToBeEdited(undefined)}
         >
           Discard changes

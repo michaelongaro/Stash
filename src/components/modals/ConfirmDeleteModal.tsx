@@ -116,6 +116,7 @@ function ConfirmDeleteModal({
         <div className="flex items-center justify-center gap-2">
           <button
             className="secondaryBtn"
+            aria-label="Keep"
             onClick={() => {
               setShowConfirmDeleteModal(false);
             }}
@@ -124,6 +125,7 @@ function ConfirmDeleteModal({
           </button>
           <button
             className="dangerBtn"
+            aria-label="Delete"
             onClick={() => {
               if (type === "image" && idsToDelete[0]) {
                 deleteImage.mutate({
