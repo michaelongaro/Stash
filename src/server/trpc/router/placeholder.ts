@@ -8,6 +8,8 @@ export const placeholderRouter = router({
     .query(async ({ input }) => {
       if (typeof input === "string") {
         return (await getPlaiceholder(input)).base64;
+      } else {
+        return null;
       }
     }),
 });
