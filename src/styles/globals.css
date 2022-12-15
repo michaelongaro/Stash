@@ -8,11 +8,11 @@ body {
 }
 
 div {
-  color: #eff6ff
+  color: #eff6ff;
 }
 
 input {
-  color: #1e3a8a
+  color: #1e3a8a;
 }
 
 .primaryBtn,
@@ -200,8 +200,17 @@ input {
   font-family: inherit;
 }
 
+.FIE_topbar {
+  margin-top: 1rem;
+}
+
+.FIE_phone-tools-tabs-wrapper {
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
 .FIE_topbar-save-wrapper {
-  width: auto !important
+  width: auto !important;
 }
 
 .FIE_main-container {
