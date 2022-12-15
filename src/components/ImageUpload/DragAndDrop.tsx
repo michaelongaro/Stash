@@ -32,6 +32,7 @@ function DragAndDrop({
   const [borderColor, setBorderColor] = useState<string>("#eeeeee");
   const [imagesHaveBeenAdded, setImagesHaveBeenAdded] =
     useState<boolean>(false);
+
   const {
     getRootProps,
     getInputProps,
@@ -66,7 +67,7 @@ function DragAndDrop({
   }, [acceptedFiles]);
 
   useEffect(() => {
-    if (acceptedFiles.length > 0 && imagesHaveBeenAdded) {
+    if (imagesHaveBeenAdded) {
       const newFiles: IImage[] = [...files];
       acceptedFiles.map((file) => {
         newFiles.push({
@@ -84,7 +85,7 @@ function DragAndDrop({
         setImagesHaveBeenAdded(false);
       }
     }
-  }, [acceptedFiles, files, imagesHaveBeenAdded]);
+  }, [files, imagesHaveBeenAdded]);
 
   function getContainerClass(renderedLocation: string) {
     if (renderedLocation === "homepage") {
