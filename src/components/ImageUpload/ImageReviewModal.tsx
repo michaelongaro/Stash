@@ -18,6 +18,7 @@ import CreateableFolderDropdown from "./CreateableFolderDropdown";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
+import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
 interface IFileProps {
   files: IImage[];
@@ -52,8 +53,11 @@ const DynamicHeader = dynamic(() => import("./ImageEditorModal"), {
 });
 
 function ImageReviewModal({ files, setFiles }: IFileProps) {
+  const localStorageID = useLocalStorageContext();
   const { data: session } = useSession();
-  const { data: allUserFolders } = trpc.folders.getUserFolders.useQuery();
+  const { data: allUserFolders } = trpc.folders.getUserFolders.useQuery(
+    localStorageID?.value ?? session?.user?.id
+  );
 
   const [imageData, setImageData] = useState<IFile[]>([]);
   const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);
