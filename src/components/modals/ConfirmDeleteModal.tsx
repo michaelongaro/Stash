@@ -44,6 +44,7 @@ function ConfirmDeleteModal({
       if (afterImageDeletionCallback) {
         afterImageDeletionCallback(undefined);
       }
+      setShowConfirmDeleteModal(false);
     },
   });
 
@@ -61,6 +62,7 @@ function ConfirmDeleteModal({
       if (afterBulkImageDeletionCallback) {
         afterBulkImageDeletionCallback([]);
       }
+      setShowConfirmDeleteModal(false);
     },
   });
 
@@ -78,6 +80,7 @@ function ConfirmDeleteModal({
       if (afterFolderDeletionCallback) {
         afterFolderDeletionCallback(null);
       }
+      setShowConfirmDeleteModal(false);
     },
   });
 
