@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 
-import HomePage from "../components/HomePage";
+import HomePage from "../components/HomePage/HomePage";
 import ImageLibrary from "../components/ImageLibrary/ImageLibrary";
 import { trpc } from "../utils/trpc";
 import { ToastContainer } from "react-toastify";
