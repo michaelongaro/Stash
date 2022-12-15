@@ -148,7 +148,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           exit="exit"
           className={`${classes.modalGrid} relative bg-blue-400/90`}
         >
-          <div className={`${classes.preview} flex items-end justify-center`}>
+          <div className={`${classes.preview} mr-2 flex items-end justify-end`}>
             Preview
           </div>
           <div className={`${classes.imageNumbers} flex items-end`}>{`(${
