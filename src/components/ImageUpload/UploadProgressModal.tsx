@@ -65,7 +65,7 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   // destroys component when all images are inside the database
   if (numImagesInsertedIntoDatabase === files.length && files.length !== 0) {
     document.body.style.overflow = "auto";
-    setInterval(() => {
+    setTimeout(() => {
       if (!session?.user) {
         localStorageID?.setValue(currentUserID);
       }
