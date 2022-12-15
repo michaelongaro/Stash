@@ -63,7 +63,11 @@ function UploadedImage({
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="relative flex min-h-[250px] items-center justify-center rounded-md transition-all hover:bg-blue-200"
+      style={{
+        background:
+          hoveringOnImage || imageIsSelected ? " rgb(191 219 254)" : "",
+      }}
+      className="relative flex min-h-[250px] items-center justify-center rounded-md transition-all"
       onMouseEnter={() => setHoveringOnImage(true)}
       onMouseLeave={() => setHoveringOnImage(false)}
       onTouchStart={() => setHoveringOnImage(true)}
