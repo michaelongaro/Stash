@@ -63,11 +63,10 @@ function UploadedImage({
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="relative flex items-center justify-center rounded-md transition-all hover:bg-blue-200"
+      className="relative flex min-h-[250px] items-center justify-center rounded-md transition-all hover:bg-blue-200"
       onMouseEnter={() => setHoveringOnImage(true)}
       onMouseLeave={() => setHoveringOnImage(false)}
       onTouchStart={() => setHoveringOnImage(true)}
-      // onTouchEnd={() => setHoveringOnImage(false)}
       onBlur={() => setHoveringOnImage(false)}
     >
       <div
