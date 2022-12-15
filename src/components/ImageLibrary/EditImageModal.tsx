@@ -58,7 +58,8 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
 
   const { data: s3Details } = trpc.metadataRouter.getAWSS3SecretKeys.useQuery();
   const { data: placeholder } = trpc.placeholderRouter.getBase64Data.useQuery(
-    image.s3ImageURL
+    image.s3ImageURL,
+    { refetchOnWindowFocus: false }
   );
 
   const [s3Config, setS3Config] = useState<IS3ClientOptions>();
@@ -470,7 +471,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           )}
 
           <Image
-            className="rounded-md shadow-lg"
+            className="h-auto w-auto rounded-md shadow-lg"
             src={image.s3ImageURL}
             alt={image?.title ?? "uploaded image"}
             width={500}

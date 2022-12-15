@@ -18,7 +18,8 @@ function SharedImage() {
 
   const userQuery = trpc.images.retrieveImage.useQuery(queryID ?? "");
   const { data: placeholder } = trpc.placeholderRouter.getBase64Data.useQuery(
-    userQuery.data?.s3ImageURL
+    userQuery.data?.s3ImageURL,
+    { refetchOnWindowFocus: false }
   );
   const [unauthorizedToViewImage, setUnauthorizedToViewImage] =
     useState<boolean>(false);
@@ -37,7 +38,7 @@ function SharedImage() {
   return (
     <div className="flex h-[100vh] items-center justify-center">
       {userQuery.data && !unauthorizedToViewImage && (
-        <div className="max-h-[99vh]">
+        <div className="relative max-h-[99vh]">
           <Image
             className="!relative max-h-[95vh] max-w-[95vw] rounded-md shadow-xl"
             src={userQuery.data.s3ImageURL}

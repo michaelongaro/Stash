@@ -28,7 +28,8 @@ function UploadedImage({
   const utils = trpc.useContext();
 
   const { data: placeholder } = trpc.placeholderRouter.getBase64Data.useQuery(
-    image.s3ImageURL
+    image.s3ImageURL,
+    { refetchOnWindowFocus: false }
   );
 
   const [hoveringOnImage, setHoveringOnImage] = useState<boolean>(false);
@@ -159,7 +160,7 @@ function UploadedImage({
       </div>
 
       <Image
-        className="cursor-pointer rounded-md shadow-lg"
+        className="h-auto w-auto cursor-pointer rounded-md shadow-lg"
         src={image.s3ImageURL}
         alt={image?.title ?? "uploaded image"}
         width={250}
