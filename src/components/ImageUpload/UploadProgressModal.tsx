@@ -11,6 +11,7 @@ import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
 import StashLogoAnimation from "../logo/StashLogoAnimation";
+import { type Folder } from "@prisma/client";
 import { type IS3ClientOptions } from "../ImageLibrary/EditImageModal";
 
 export interface IS3Response {
@@ -42,11 +43,12 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
       });
     }
   }, [s3Details]);
+
   const [s3URLs, setS3URLs] = useState<string[]>([]);
   const [uploadsHaveStarted, setUploadsHaveStarted] = useState<boolean>(false);
 
   const [fileIndex, setFileIndex] = useState<number>(0);
-  const [newlyAddedFolderID, setNewlyAddedFolderID] = useState<string>();
+  const [newlyAddedFolder, setNewlyAddedFolder] = useState<Folder>();
   const [numImagesInsertedIntoDatabase, setNumImagesInsertedIntoDatabase] =
     useState<number>(0);
 
@@ -102,7 +104,7 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
     },
     onSuccess(data) {
       if (data && data.id.length > 0) {
-        setNewlyAddedFolderID(data.id);
+        setNewlyAddedFolder(data);
       }
     },
     onSettled: () => {
@@ -120,31 +122,32 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   });
 
   useEffect(() => {
-    if (
-      newlyAddedFolderID &&
-      newlyAddedFolderID.length > 0 &&
-      fileIndex < files.length &&
-      currentUserID
-    ) {
-      addImage.mutate({
-        s3ImageURL: s3URLs[fileIndex]!,
-        randomizedURL: cryptoRandomString({ length: 5 }),
-        title: files[fileIndex]!.title,
-        description: files[fileIndex]!.description,
-        isPublic: files[fileIndex]!.isPublic,
-        userID: currentUserID,
-        folderID: newlyAddedFolderID,
+    if (newlyAddedFolder && currentUserID) {
+      // verify that this works
+      files.map((file, index) => {
+        if (file.folder?.label === newlyAddedFolder.title) {
+          addImage.mutate({
+            s3ImageURL: s3URLs[index]!,
+            randomizedURL: cryptoRandomString({ length: 5 }),
+            title: file.title,
+            description: file.description,
+            isPublic: file.isPublic,
+            userID: currentUserID,
+            folderID: newlyAddedFolder.id,
+          });
+        }
       });
 
-      setNewlyAddedFolderID(undefined); // preventing rerenders of this effect until new folder id is added
+      setNewlyAddedFolder(undefined); // preventing rerenders of this effect until new folder id is added
     }
-  }, [s3URLs, files, fileIndex, currentUserID, newlyAddedFolderID]);
+  }, [s3URLs, files, currentUserID, newlyAddedFolder]);
 
   useEffect(() => {
     if (files.length > 0 && !uploadsHaveStarted && s3Config) {
       setUploadsHaveStarted(true);
 
       const S3Client = new S3(s3Config);
+
       files.map((file) => {
         S3Client.uploadFile(file.image.imageFile).then((res: IS3Response) =>
           setS3URLs((currentS3URLs) => [...currentS3URLs, res.location])
@@ -160,12 +163,18 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
 
   useEffect(() => {
     if (s3URLs.length === files.length && currentUserID) {
+      const foldersThatNeedToBeCreated: string[] = []; // is this robust at all?
       files.map((file, i) => {
         if (file.folder && file.folder.value === file.folder.label) {
-          createFolder.mutate({
-            title: file.folder.label,
-            userID: currentUserID,
-          });
+          // skips over images that will be added in above effect when new
+          // folder is created (prevents duplicate folders)
+          if (!foldersThatNeedToBeCreated.includes(file.folder.label)) {
+            createFolder.mutate({
+              title: file.folder.label,
+              userID: currentUserID,
+            });
+            foldersThatNeedToBeCreated.push(file.folder.label);
+          }
         } else if (
           file.folder &&
           file.folder.value &&
