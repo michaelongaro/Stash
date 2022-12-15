@@ -30,6 +30,7 @@ import useOnClickOutside from "../../hooks/useOnClickOutside";
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useLocalStorageContext } from "../../context/LocalStorageContext";
+import base64Logo from "../../utils/base64Logo";
 
 const DynamicHeader = dynamic(() => import("../ImageUpload/ImageEditorModal"), {
   ssr: false,
@@ -467,17 +468,16 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               edited image will be shown once changes are saved*
             </div>
           )}
-          {placeholder && (
-            <Image
-              className="rounded-md shadow-lg"
-              src={image.s3ImageURL}
-              alt={image?.title ?? "uploaded image"}
-              width={500}
-              height={500}
-              placeholder={"blur"}
-              blurDataURL={placeholder.base64}
-            />
-          )}
+
+          <Image
+            className="rounded-md shadow-lg"
+            src={image.s3ImageURL}
+            alt={image?.title ?? "uploaded image"}
+            width={500}
+            height={500}
+            placeholder={"blur"}
+            blurDataURL={placeholder ?? base64Logo}
+          />
         </div>
         <button
           className="absolute top-2 right-2 transition hover:opacity-50"

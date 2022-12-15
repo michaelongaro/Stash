@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { isMobile } from "react-device-detect";
 import { motion } from "framer-motion";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
+import base64Logo from "../../utils/base64Logo";
 
 interface IUploadedImage {
   image: PrismaImage;
@@ -157,22 +158,21 @@ function UploadedImage({
         </div>
       </div>
 
-      {placeholder && (
-        <Image
-          className="cursor-pointer rounded-md shadow-lg"
-          src={image.s3ImageURL}
-          alt={image?.title ?? "uploaded image"}
-          width={250}
-          height={250}
-          onClick={() => {
-            if (!isMobile) {
-              setImageBeingEdited(image);
-            }
-          }}
-          placeholder={"blur"}
-          blurDataURL={placeholder.base64}
-        />
-      )}
+      <Image
+        className="cursor-pointer rounded-md shadow-lg"
+        src={image.s3ImageURL}
+        alt={image?.title ?? "uploaded image"}
+        width={250}
+        height={250}
+        priority={true}
+        onClick={() => {
+          if (!isMobile) {
+            setImageBeingEdited(image);
+          }
+        }}
+        placeholder={"blur"}
+        blurDataURL={placeholder ?? base64Logo}
+      />
 
       <div
         ref={bottomControlsContainerRef}

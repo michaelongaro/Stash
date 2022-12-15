@@ -7,7 +7,7 @@ export const placeholderRouter = router({
     .input(z.string().url().optional())
     .query(async ({ input }) => {
       if (typeof input === "string") {
-        return await getPlaiceholder(input);
+        return (await getPlaiceholder(input)).base64;
       }
     }),
 });

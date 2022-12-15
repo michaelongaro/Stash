@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { FaLock } from "react-icons/fa";
 import Image from "next/image";
 import LogIn from "../components/auth/LogIn";
+import base64Logo from "../utils/base64Logo";
 
 function SharedImage() {
   const router = useRouter();
@@ -37,20 +38,16 @@ function SharedImage() {
     <div className="flex h-[100vh] items-center justify-center">
       {userQuery.data && !unauthorizedToViewImage && (
         <div className="max-h-[99vh]">
-          {placeholder && (
-            <Image
-              className="!relative max-h-[95vh] max-w-[95vw] rounded-md shadow-xl"
-              src={userQuery.data.s3ImageURL}
-              alt={
-                userQuery.data.title ?? "image retrieved from AWS s3 database"
-              }
-              fill={true}
-              quality={100}
-              priority={true}
-              placeholder={"blur"}
-              blurDataURL={placeholder.base64}
-            />
-          )}
+          <Image
+            className="!relative max-h-[95vh] max-w-[95vw] rounded-md shadow-xl"
+            src={userQuery.data.s3ImageURL}
+            alt={userQuery.data.title ?? "image retrieved from AWS s3 database"}
+            fill={true}
+            quality={100}
+            priority={true}
+            placeholder={"blur"}
+            blurDataURL={placeholder ?? base64Logo}
+          />
         </div>
       )}
 
