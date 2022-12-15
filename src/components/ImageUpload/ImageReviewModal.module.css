@@ -18,7 +18,7 @@
   height: 90vh;
   border-radius: 0.5rem;
   padding: 2rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 @media (max-width: 1300px),

@@ -250,7 +250,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         exit="exit"
         className="relative m-6 
         flex max-h-[95vh] flex-col items-center
-        justify-start gap-4 overflow-y-scroll rounded-md bg-blue-500/90 p-[0.5rem] pt-12 pb-4 sm:max-w-[95vw] sm:p-10 lg:max-w-[85vw]"
+        justify-start gap-4 overflow-y-auto rounded-md bg-blue-500/90 p-[0.5rem] pt-12 pb-4 sm:max-w-[95vw] sm:p-10 lg:max-w-[85vw]"
       >
         <div
           className={`${classes.editImageDetailsGrid} rounded-md bg-blue-400/90 p-4`}
