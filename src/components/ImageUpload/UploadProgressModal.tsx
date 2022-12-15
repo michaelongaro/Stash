@@ -11,15 +11,7 @@ import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
 import StashLogoAnimation from "../logo/StashLogoAnimation";
-
-const config = {
-  bucketName: "stash-resources",
-  region: "us-east-2",
-  accessKeyId: "AKIA3MXYY55AXMHDSQCJ",
-  secretAccessKey: "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",
-};
-
-const S3Client = new S3(config);
+import { type IS3ClientOptions } from "../ImageLibrary/EditImageModal";
 
 export interface IS3Response {
   bucket: string;
@@ -36,6 +28,20 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   const utils = trpc.useContext();
   const localStorageID = useLocalStorageContext();
 
+  const { data: s3Details } = trpc.metadataRouter.getAWSS3SecretKeys.useQuery();
+
+  const [s3Config, setS3Config] = useState<IS3ClientOptions>();
+
+  useEffect(() => {
+    if (s3Details && s3Details.accessKeyId && s3Details.secretAccessKey) {
+      setS3Config({
+        bucketName: "stash-resources",
+        region: "us-east-2",
+        accessKeyId: s3Details.accessKeyId,
+        secretAccessKey: s3Details.secretAccessKey,
+      });
+    }
+  }, [s3Details]);
   const [s3URLs, setS3URLs] = useState<string[]>([]);
   const [uploadsHaveStarted, setUploadsHaveStarted] = useState<boolean>(false);
 
@@ -135,10 +141,10 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
   }, [s3URLs, files, fileIndex, currentUserID, newlyAddedFolderID]);
 
   useEffect(() => {
-    if (files.length > 0 && !uploadsHaveStarted) {
+    if (files.length > 0 && !uploadsHaveStarted && s3Config) {
       setUploadsHaveStarted(true);
 
-      // maybe this is due to react strictmode being called twice..
+      const S3Client = new S3(s3Config);
       files.map((file) => {
         S3Client.uploadFile(file.image.imageFile).then((res: IS3Response) =>
           setS3URLs((currentS3URLs) => [...currentS3URLs, res.location])
@@ -150,7 +156,7 @@ function UploadProgressModal({ files, setFiles }: IUploadProgressModal) {
     return () => {
       setUploadsHaveStarted(true); // probably not right way to do this
     };
-  }, [files, uploadsHaveStarted]);
+  }, [files, uploadsHaveStarted, s3Config]);
 
   useEffect(() => {
     if (s3URLs.length === files.length && currentUserID) {

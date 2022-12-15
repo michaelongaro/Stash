@@ -31,18 +31,16 @@ import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useLocalStorageContext } from "../../context/LocalStorageContext";
 
-const config = {
-  bucketName: "stash-resources",
-  region: "us-east-2",
-  accessKeyId: "AKIA3MXYY55AXMHDSQCJ",
-  secretAccessKey: "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",
-};
-
-const S3Client = new S3(config);
-
 const DynamicHeader = dynamic(() => import("../ImageUpload/ImageEditorModal"), {
   ssr: false,
 });
+
+export interface IS3ClientOptions {
+  bucketName: string;
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+}
 
 interface IEditImageModal {
   image: IImage;
@@ -56,6 +54,21 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     localStorageID?.value ?? session?.user?.id
   );
   const utils = trpc.useContext();
+
+  const { data: s3Details } = trpc.metadataRouter.getAWSS3SecretKeys.useQuery();
+
+  const [s3Config, setS3Config] = useState<IS3ClientOptions>();
+
+  useEffect(() => {
+    if (s3Details && s3Details.accessKeyId && s3Details.secretAccessKey) {
+      setS3Config({
+        bucketName: "stash-resources",
+        region: "us-east-2",
+        accessKeyId: s3Details.accessKeyId,
+        secretAccessKey: s3Details.secretAccessKey,
+      });
+    }
+  }, [s3Details]);
 
   const [editedImageData, setEditedImageData] = useState<IImage>(image);
   const [folderOptions, setFolderOptions] = useState<IFolderOptions[]>([]);
@@ -158,7 +171,8 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
   useEffect(() => {
     if (readyToUpdate) {
       // check if image was edited -> needs to be uploaded to s3 -> store new url in db
-      if (editedImageFile) {
+      if (editedImageFile && s3Config) {
+        const S3Client = new S3(s3Config);
         S3Client.uploadFile(editedImageFile).then((res: IS3Response) => {
           updateImageData.mutate({
             ...editedImageData,
@@ -189,6 +203,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     currentlySelectedFolder,
     editedImageData,
     editedImageFile,
+    s3Config,
   ]);
 
   useEffect(() => {
