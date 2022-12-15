@@ -40,6 +40,7 @@ function ConfirmDeleteModal({
     },
     onSettled: () => {
       utils.images.getUserImages.invalidate();
+      utils.images.retrieveImageFromFolder.invalidate();
       if (afterImageDeletionCallback) {
         afterImageDeletionCallback(undefined);
       }
