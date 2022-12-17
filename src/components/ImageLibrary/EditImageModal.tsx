@@ -31,6 +31,7 @@ import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useLocalStorageContext } from "../../context/LocalStorageContext";
 import base64Logo from "../../utils/base64Logo";
+import { toastNotification } from "../../utils/toastNotification";
 
 const DynamicHeader = dynamic(() => import("../ImageUpload/ImageEditorModal"), {
   ssr: false,
@@ -119,6 +120,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     },
     onSettled: () => {
       utils.folders.getUserFolders.invalidate();
+      utils.folders.getUserFolders.invalidate();
     },
   });
 
@@ -137,6 +139,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     onSettled: () => {
       utils.images.getUserImages.invalidate();
       utils.images.retrieveImageFromFolder.invalidate();
+      toastNotification("Image details updated");
       setImageBeingEdited(undefined);
     },
   });

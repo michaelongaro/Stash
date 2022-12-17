@@ -9,6 +9,7 @@ import { isMobile } from "react-device-detect";
 import { motion } from "framer-motion";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import base64Logo from "../../utils/base64Logo";
+import { toastNotification } from "../../utils/toastNotification";
 
 interface IUploadedImage {
   image: PrismaImage;
@@ -51,6 +52,10 @@ function UploadedImage({
     },
     onSettled: () => {
       utils.images.getUserImages.invalidate();
+      utils.images.retrieveImageFromFolder.invalidate();
+      toastNotification(
+        `Image set to ${!image.isPublic ? "public" : "private"}`
+      );
     },
   });
 
@@ -211,16 +216,7 @@ function UploadedImage({
               `${window.location}${image.randomizedURL}`
             );
 
-            toast.success("Sharable link copied!", {
-              position: "bottom-center",
-              autoClose: 4000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
+            toastNotification("Sharable link copied");
           }}
         >
           <FaLink size={"1rem"} />

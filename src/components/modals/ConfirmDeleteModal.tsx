@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { type Image, type Folder } from "@prisma/client";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import { trpc } from "../../utils/trpc";
+import { toastNotification } from "../../utils/toastNotification";
 
 interface IConfirmDeleteModal {
   type: "image" | "images" | "folder";
@@ -44,6 +45,7 @@ function ConfirmDeleteModal({
       if (afterImageDeletionCallback) {
         afterImageDeletionCallback(undefined);
       }
+      toastNotification("Image deleted");
       setShowConfirmDeleteModal(false);
     },
   });
@@ -58,10 +60,12 @@ function ConfirmDeleteModal({
       }
     },
     onSettled: () => {
+      utils.folders.getUserFolders.invalidate();
       utils.images.getUserImages.invalidate();
       if (afterBulkImageDeletionCallback) {
         afterBulkImageDeletionCallback([]);
       }
+      toastNotification("Images deleted");
       setShowConfirmDeleteModal(false);
     },
   });
@@ -77,9 +81,11 @@ function ConfirmDeleteModal({
     },
     onSettled: () => {
       utils.folders.getUserFolders.invalidate();
+      utils.images.getUserImages.invalidate();
       if (afterFolderDeletionCallback) {
         afterFolderDeletionCallback(null);
       }
+      toastNotification("Folder deleted");
       setShowConfirmDeleteModal(false);
     },
   });
