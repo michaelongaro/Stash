@@ -285,7 +285,13 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               </div>
             ) : (
               <div className="flex items-center justify-start gap-4">
-                {image.title}
+                {image.title ? (
+                  image.title
+                ) : (
+                  <div className="italic text-blue-50/70">
+                    (No title provided)
+                  </div>
+                )}
                 <button
                   className="secondaryBtn"
                   aria-label="Edit"
@@ -326,7 +332,13 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               </div>
             ) : (
               <div className="flex items-center justify-start gap-4">
-                {image.description}
+                {image.description ? (
+                  image.description
+                ) : (
+                  <div className="italic text-blue-50/70">
+                    (No description provided)
+                  </div>
+                )}
                 <button
                   className="secondaryBtn"
                   aria-label="Edit"
