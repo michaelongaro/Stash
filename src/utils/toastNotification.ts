@@ -9,6 +9,7 @@ export const toastNotification = (text: string) => {
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
+    pauseOnFocusLoss: false,
     theme: "light",
   });
 };
