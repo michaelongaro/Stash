@@ -1,9 +1,10 @@
-import React from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { type Image, type Folder } from "@prisma/client";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import { trpc } from "../../utils/trpc";
 import { toastNotification } from "../../utils/toastNotification";
+import LoadingDots from "../loadingAssets/LoadingDots";
 
 interface IConfirmDeleteModal {
   type: "image" | "images" | "folder";
@@ -30,6 +31,8 @@ function ConfirmDeleteModal({
 }: IConfirmDeleteModal) {
   const utils = trpc.useContext();
 
+  const [deletionInProgress, setDeletionInProgress] = useState<boolean>(false);
+
   const deleteImage = trpc.images.deleteImage.useMutation({
     onMutate: () => {
       utils.images.getUserImages.cancel();
@@ -42,6 +45,7 @@ function ConfirmDeleteModal({
     onSettled: () => {
       utils.images.getUserImages.invalidate();
       utils.images.retrieveImageFromFolder.invalidate();
+      setDeletionInProgress(false);
       if (afterImageDeletionCallback) {
         afterImageDeletionCallback(undefined);
       }
@@ -62,6 +66,7 @@ function ConfirmDeleteModal({
     onSettled: () => {
       utils.folders.getUserFolders.invalidate();
       utils.images.getUserImages.invalidate();
+      setDeletionInProgress(false);
       if (afterBulkImageDeletionCallback) {
         afterBulkImageDeletionCallback([]);
       }
@@ -82,6 +87,7 @@ function ConfirmDeleteModal({
     onSettled: () => {
       utils.folders.getUserFolders.invalidate();
       utils.images.getUserImages.invalidate();
+      setDeletionInProgress(false);
       if (afterFolderDeletionCallback) {
         afterFolderDeletionCallback(null);
       }
@@ -133,6 +139,7 @@ function ConfirmDeleteModal({
             className="dangerBtn"
             aria-label="Delete"
             onClick={() => {
+              setDeletionInProgress(true);
               if (type === "image" && idsToDelete[0]) {
                 deleteImage.mutate({
                   id: idsToDelete[0],
@@ -148,7 +155,11 @@ function ConfirmDeleteModal({
               }
             }}
           >
-            Delete
+            {deletionInProgress ? (
+              <LoadingDots width={32} height={16} radius={10} />
+            ) : (
+              "Delete"
+            )}
           </button>
         </div>
       </motion.div>

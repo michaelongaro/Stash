@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import base64Logo from "../../utils/base64Logo";
 import { toastNotification } from "../../utils/toastNotification";
+import LoadingDots from "../loadingAssets/LoadingDots";
 
 interface IUploadedImage {
   image: PrismaImage;
@@ -28,11 +29,6 @@ function UploadedImage({
 }: IUploadedImage) {
   const utils = trpc.useContext();
 
-  const { data: placeholder } = trpc.placeholderRouter.getBase64Data.useQuery(
-    image.s3ImageURL,
-    { refetchOnWindowFocus: false }
-  );
-
   const [hoveringOnImage, setHoveringOnImage] = useState<boolean>(false);
   const [hoveringOnLockButton, setHoveringOnLockButton] =
     useState<boolean>(false);
@@ -40,6 +36,7 @@ function UploadedImage({
 
   const topControlsContainerRef = useRef<HTMLDivElement | null>(null);
   const bottomControlsContainerRef = useRef<HTMLDivElement | null>(null);
+  const [isBeingUpdated, setIsBeingUpdated] = useState<boolean>(false);
 
   const updateImageData = trpc.images.updateImageData.useMutation({
     onMutate: () => {
@@ -53,6 +50,7 @@ function UploadedImage({
     onSettled: () => {
       utils.images.getUserImages.invalidate();
       utils.images.retrieveImageFromFolder.invalidate();
+      setIsBeingUpdated(false);
       toastNotification(
         `Image set to ${!image.isPublic ? "public" : "private"}`
       );
@@ -118,27 +116,34 @@ function UploadedImage({
             aria-label="Toggle visibility of image between public and private"
             onMouseEnter={() => setHoveringOnLockButton(true)}
             onMouseLeave={() => setHoveringOnLockButton(false)}
-            onClick={() =>
+            onClick={() => {
               updateImageData.mutate({
                 ...image,
                 isPublic: !image.isPublic,
-              })
-            }
+              });
+              setIsBeingUpdated(true);
+            }}
           >
-            {image.isPublic ? (
-              <>
-                {hoveringOnLockButton ? (
-                  <FaLock size={"1rem"} />
-                ) : (
-                  <FaLockOpen size={"1rem"} />
-                )}
-              </>
+            {isBeingUpdated ? (
+              <LoadingDots width={32} height={16} radius={12} />
             ) : (
               <>
-                {hoveringOnLockButton ? (
-                  <FaLockOpen size={"1rem"} />
+                {image.isPublic ? (
+                  <>
+                    {hoveringOnLockButton ? (
+                      <FaLock size={"1rem"} />
+                    ) : (
+                      <FaLockOpen size={"1rem"} />
+                    )}
+                  </>
                 ) : (
-                  <FaLock size={"1rem"} />
+                  <>
+                    {hoveringOnLockButton ? (
+                      <FaLockOpen size={"1rem"} />
+                    ) : (
+                      <FaLock size={"1rem"} />
+                    )}
+                  </>
                 )}
               </>
             )}

@@ -32,6 +32,7 @@ import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useLocalStorageContext } from "../../context/LocalStorageContext";
 import base64Logo from "../../utils/base64Logo";
 import { toastNotification } from "../../utils/toastNotification";
+import LoadingDots from "../loadingAssets/LoadingDots";
 
 const DynamicHeader = dynamic(() => import("../ImageUpload/ImageEditorModal"), {
   ssr: false,
@@ -58,10 +59,6 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
   const utils = trpc.useContext();
 
   const { data: s3Details } = trpc.metadataRouter.getAWSS3SecretKeys.useQuery();
-  const { data: placeholder } = trpc.placeholderRouter.getBase64Data.useQuery(
-    image.s3ImageURL,
-    { refetchOnWindowFocus: false }
-  );
 
   const [s3Config, setS3Config] = useState<IS3ClientOptions>();
 
@@ -139,6 +136,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     onSettled: () => {
       utils.images.getUserImages.invalidate();
       utils.images.retrieveImageFromFolder.invalidate();
+      setReadyToUpdate(false);
       toastNotification("Image details updated");
       setImageBeingEdited(undefined);
     },
@@ -190,7 +188,6 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 : null,
             s3ImageURL: res.location,
           });
-          setReadyToUpdate(false);
           setNewlyAddedFolderID(undefined); // necessary?
         });
       } else {
@@ -201,7 +198,6 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               ? currentlySelectedFolder?.value
               : null,
         });
-        setReadyToUpdate(false);
         setNewlyAddedFolderID(undefined); // necessary?
       }
     }
@@ -253,7 +249,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         exit="exit"
         className="relative m-6 
         flex max-h-[95vh] flex-col items-center
-        justify-start gap-4 overflow-y-auto rounded-md bg-blue-500/90 p-[0.5rem] pt-12 pb-4 sm:max-w-[95vw] sm:p-10 lg:max-w-[85vw]"
+        justify-start gap-4 overflow-y-auto rounded-md bg-blue-500/90 p-[0.5rem] pt-12 pb-12 sm:max-w-[95vw] sm:p-10 lg:max-w-[85vw]"
       >
         <div
           className={`${classes.editImageDetailsGrid} rounded-md bg-blue-400/90 p-4`}
@@ -473,7 +469,11 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               }
             }}
           >
-            Save
+            {readyToUpdate ? (
+              <LoadingDots width={48} height={24} radius={15} />
+            ) : (
+              "Save"
+            )}
           </button>
           <button
             className={`${classes.deleteButton} dangerBtn flex items-center justify-center gap-4`}
