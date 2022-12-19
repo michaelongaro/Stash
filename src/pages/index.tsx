@@ -44,7 +44,6 @@ const Home = () => {
   }, [session, localStorageID?.value]);
 
   if (status === "loading") {
-    // return <main className="flex flex-col items-center pt-4">Loading...</main>;
     return <></>;
   }
 
