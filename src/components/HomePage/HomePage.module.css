@@ -5,7 +5,7 @@
 .tickerList li div {
   text-align: center;
   font-size: 1.15rem;
-  text-shadow: hsl(214deg 100% 75%) 1px 2px 3px;
+  text-shadow: hsl(214deg 100% 75%) 0px 1px 3px;
 }
 
 .tickerList {
