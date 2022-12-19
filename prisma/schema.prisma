@@ -8,17 +8,18 @@ datasource db {
 }
 
 model Image {
-  id            String   @id @default(cuid())
-  createdAt     DateTime @default(now())
-  s3ImageURL    String
-  randomizedURL String
-  isPublic      Boolean
-  title         String?  @db.VarChar(100)
-  description   String?  @db.VarChar(150)
-  folder        Folder?  @relation(fields: [folderID], references: [id])
-  folderID      String?
-  user          User     @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID        String
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  s3ImageURL       String
+  randomizedURL    String
+  isPublic         Boolean
+  blurredImageData String?  @db.Text
+  title            String?  @db.VarChar(100)
+  description      String?  @db.VarChar(150)
+  folder           Folder?  @relation(fields: [folderID], references: [id])
+  folderID         String?
+  user             User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID           String
 }
 
 model Folder {
