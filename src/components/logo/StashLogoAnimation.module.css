@@ -1,6 +1,6 @@
 .stashLogo {
   stroke-dasharray: 400;
-  animation: draw 3s alternate infinite ease-in;
+  animation: draw 3s alternate infinite ease-in-out;
 }
 
 @keyframes draw {
@@ -9,6 +9,6 @@
   }
 
   100% {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 95;
   }
 }
