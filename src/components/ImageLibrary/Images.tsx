@@ -8,6 +8,7 @@ import UploadedImage from "./UploadedImage";
 import Folders from "./Folders";
 import EditImageModal from "./EditImageModal";
 import { type Image, type Folder } from "@prisma/client";
+import StashLogoAnimation from "../logo/StashLogoAnimation";
 
 function Images() {
   // should eventually use status to show something while fetching whether user
@@ -49,57 +50,66 @@ function Images() {
 
   return (
     <div className="mt-2 w-[85vw] pb-[15%]">
-      {folders && userImages && (
-        <Folders
-          folders={folders}
-          selectedFolder={selectedFolder}
-          setSelectedFolder={setSelectedFolder}
-          setSelectedImages={setSelectedImages}
-          setImageBeingEdited={setImageBeingEdited}
-        />
-      )}
-
-      <AnimatePresence
-        initial={false}
-        mode={"wait"}
-        onExitComplete={() => null}
-      >
-        {selectedImages && selectedImages.length > 0 && (
-          <SelectedImages
-            selectedImageIDs={selectedImages}
-            setSelectedImageIDs={setSelectedImages}
-          />
-        )}
-      </AnimatePresence>
-
-      {imagesToShow && (
-        <div className="m-6 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {imagesToShow.map((image) => {
-            return (
-              <UploadedImage
-                key={image.id}
-                image={image}
-                setImageBeingEdited={setImageBeingEdited}
-                selectedImages={selectedImages}
-                setSelectedImages={setSelectedImages}
-              />
-            );
-          })}
+      {!folders && !userImages ? (
+        <div className="flex min-h-[100vh] flex-col items-center justify-center gap-2">
+          <StashLogoAnimation size={"6rem"} />
+          <div className="text-blue-500">Loading...</div>
         </div>
-      )}
+      ) : (
+        <>
+          {folders && userImages && (
+            <Folders
+              folders={folders}
+              selectedFolder={selectedFolder}
+              setSelectedFolder={setSelectedFolder}
+              setSelectedImages={setSelectedImages}
+              setImageBeingEdited={setImageBeingEdited}
+            />
+          )}
 
-      <AnimatePresence
-        initial={false}
-        mode={"wait"}
-        onExitComplete={() => null}
-      >
-        {imageBeingEdited && (
-          <EditImageModal
-            image={imageBeingEdited}
-            setImageBeingEdited={setImageBeingEdited}
-          />
-        )}
-      </AnimatePresence>
+          <AnimatePresence
+            initial={false}
+            mode={"wait"}
+            onExitComplete={() => null}
+          >
+            {selectedImages && selectedImages.length > 0 && (
+              <SelectedImages
+                selectedImageIDs={selectedImages}
+                setSelectedImageIDs={setSelectedImages}
+              />
+            )}
+          </AnimatePresence>
+
+          {imagesToShow && (
+            <div className="m-6 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {imagesToShow.map((image) => {
+                return (
+                  <UploadedImage
+                    key={image.id}
+                    image={image}
+                    setImageBeingEdited={setImageBeingEdited}
+                    selectedImages={selectedImages}
+                    setSelectedImages={setSelectedImages}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          <AnimatePresence
+            initial={false}
+            mode={"wait"}
+            onExitComplete={() => null}
+          >
+            {imageBeingEdited && (
+              <EditImageModal
+                image={imageBeingEdited}
+                setImageBeingEdited={setImageBeingEdited}
+              />
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }
