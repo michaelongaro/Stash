@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../trpc";
+import { getPlaiceholder } from "plaiceholder";
 
 export const imagesRouter = router({
   getUserImages: publicProcedure
@@ -45,9 +46,13 @@ export const imagesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        const base64ImageData = (await getPlaiceholder(input.s3ImageURL))
+          .base64;
+
         await ctx.prisma.image.create({
           data: {
             ...input,
+            blurredImageData: base64ImageData,
           },
         });
       } catch (error) {
