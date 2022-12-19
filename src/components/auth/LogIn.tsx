@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { signIn } from "next-auth/react";
 
 import { FaTimes } from "react-icons/fa";
@@ -8,16 +8,38 @@ import { dropIn } from "../../utils/framerMotionDropInStyles";
 
 interface ILogIn {
   gap: string;
+  hideLoginButtonAtMobileWidths: boolean;
 }
 
-function LogIn({ gap }: ILogIn) {
+function LogIn({ gap, hideLoginButtonAtMobileWidths }: ILogIn) {
   const signInRef = useRef<HTMLDivElement>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [hideLogInButton, setHideLogInButton] = useState<boolean>(false);
+
   useOnClickOutside({
     ref: signInRef,
     setter: setShowModal,
     hideModalValue: false,
   });
+
+  useEffect(() => {
+    if (hideLoginButtonAtMobileWidths) {
+      const handleResize = () => {
+        if (window.innerWidth < 500) {
+          setHideLogInButton(true);
+        } else {
+          setHideLogInButton(false);
+        }
+      };
+
+      handleResize();
+
+      window.addEventListener("resize", handleResize);
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }
+  }, [hideLoginButtonAtMobileWidths]);
 
   return (
     <>
@@ -32,6 +54,7 @@ function LogIn({ gap }: ILogIn) {
         <button
           className="secondaryBtn"
           aria-label="Log In"
+          style={{ display: hideLogInButton ? "none" : "block" }}
           onClick={() => setShowModal(true)}
         >
           Log In

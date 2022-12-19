@@ -42,7 +42,7 @@ function HomePage() {
         </h2>
       </div>
 
-      <LogIn gap={"1.5rem"} />
+      <LogIn gap={"1.5rem"} hideLoginButtonAtMobileWidths={false} />
 
       <DragAndDrop
         renderedLocation={"homepage"}

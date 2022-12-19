@@ -46,7 +46,7 @@ function Navbar() {
             Log out
           </button>
         ) : (
-          <LogIn gap={"1rem"} />
+          <LogIn gap={"1rem"} hideLoginButtonAtMobileWidths={true} />
         )}
       </div>
     </div>

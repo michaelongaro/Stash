@@ -56,7 +56,7 @@ function SharedImage() {
         <div className="flex flex-col items-center justify-center gap-4 rounded-md bg-slate-200 p-4 text-xl text-blue-700">
           <FaLock size={"2rem"} />
           You do not have access to view this image.
-          <LogIn gap={"1.5rem"} />
+          <LogIn gap={"1.5rem"} hideLoginButtonAtMobileWidths={false} />
         </div>
       )}
     </div>
