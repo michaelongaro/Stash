@@ -40,7 +40,7 @@ function Navbar() {
         {session?.user?.id ? (
           <button
             className="secondaryBtn"
-            aria-aria-label="Log out"
+            aria-label="Log out"
             onClick={() => signOut()}
           >
             Log out
