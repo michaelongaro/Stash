@@ -179,7 +179,7 @@ function UploadedImage({
           }
         }}
         placeholder={"blur"}
-        blurDataURL={placeholder ?? base64Logo}
+        blurDataURL={image.blurredImageData ?? base64Logo}
       />
 
       <div

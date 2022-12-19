@@ -499,7 +499,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             width={500}
             height={500}
             placeholder={"blur"}
-            blurDataURL={placeholder ?? base64Logo}
+            blurDataURL={image.blurredImageData ?? base64Logo}
           />
         </div>
         <button

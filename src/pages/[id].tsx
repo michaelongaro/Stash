@@ -17,10 +17,6 @@ function SharedImage() {
   }
 
   const userQuery = trpc.images.retrieveImage.useQuery(queryID ?? "");
-  const { data: placeholder } = trpc.placeholderRouter.getBase64Data.useQuery(
-    userQuery.data?.s3ImageURL,
-    { refetchOnWindowFocus: false }
-  );
   const [unauthorizedToViewImage, setUnauthorizedToViewImage] =
     useState<boolean>(false);
 
@@ -47,7 +43,7 @@ function SharedImage() {
             quality={100}
             priority={true}
             placeholder={"blur"}
-            blurDataURL={placeholder ?? base64Logo}
+            blurDataURL={userQuery.data.blurredImageData ?? base64Logo}
           />
         </div>
       )}
