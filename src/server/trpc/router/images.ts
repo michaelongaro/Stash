@@ -46,8 +46,11 @@ export const imagesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const base64ImageData = (await getPlaiceholder(input.s3ImageURL))
-          .base64;
+        const base64ImageData = (
+          await getPlaiceholder(input.s3ImageURL, {
+            size: 10,
+          })
+        ).base64;
 
         await ctx.prisma.image.create({
           data: {
