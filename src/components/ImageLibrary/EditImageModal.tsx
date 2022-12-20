@@ -83,10 +83,9 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
 
-  const [newlyAddedFolderID, setNewlyAddedFolderID] = useState<string>();
-
   const [imageToBeEdited, setImageToBeEdited] = useState<string>(); // IImage
 
+  const [creatingFolder, setCreatingFolder] = useState<boolean>(false);
   const [readyToUpdate, setReadyToUpdate] = useState<boolean>(false);
 
   const [editedImageFile, setEditedImageFile] = useState<File>();
@@ -112,7 +111,16 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     },
     onSuccess(data) {
       if (data && data.id.length > 0) {
-        setNewlyAddedFolderID(data.id);
+        if (currentlySelectedFolder?.label) {
+          let prevFolderState = { ...currentlySelectedFolder };
+          prevFolderState = {
+            label: currentlySelectedFolder.label,
+            value: data.id,
+          };
+          setCurrentlySelectedFolder(prevFolderState);
+        }
+        setCreatingFolder(false);
+        setReadyToUpdate(true);
       }
     },
     onSettled: () => {
@@ -155,25 +163,6 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     }
   }, [image, allUserFolders]);
 
-  // probably redo these two effects later
-  useEffect(() => {
-    if (newlyAddedFolderID && newlyAddedFolderID.length > 0) {
-      setReadyToUpdate(true);
-
-      // try to use setState callback to set currentlySelectedFolder later
-      if (currentlySelectedFolder?.label) {
-        let prevFolderState = { ...currentlySelectedFolder };
-        prevFolderState = {
-          label: currentlySelectedFolder.label,
-          value: newlyAddedFolderID,
-        };
-        setCurrentlySelectedFolder(prevFolderState);
-      }
-
-      // setNewlyAddedFolderID(undefined);
-    }
-  }, [currentlySelectedFolder, newlyAddedFolderID]);
-
   useEffect(() => {
     if (readyToUpdate) {
       // check if image was edited -> needs to be uploaded to s3 -> store new url in db
@@ -182,27 +171,23 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         S3Client.uploadFile(editedImageFile).then((res: IS3Response) => {
           updateImageData.mutate({
             ...editedImageData,
-            folderID:
-              newlyAddedFolderID ?? currentlySelectedFolder?.value?.length
-                ? currentlySelectedFolder?.value
-                : null,
+            folderID: currentlySelectedFolder?.value?.length
+              ? currentlySelectedFolder?.value
+              : null,
             s3ImageURL: res.location,
           });
-          setNewlyAddedFolderID(undefined); // necessary?
         });
       } else {
         updateImageData.mutate({
           ...editedImageData,
-          folderID:
-            newlyAddedFolderID ?? currentlySelectedFolder?.value?.length
-              ? currentlySelectedFolder?.value
-              : null,
+          folderID: currentlySelectedFolder?.value?.length
+            ? currentlySelectedFolder?.value
+            : null,
         });
-        setNewlyAddedFolderID(undefined); // necessary?
       }
     }
   }, [
-    newlyAddedFolderID,
+    // newlyAddedFolderID,
     readyToUpdate,
     currentlySelectedFolder,
     editedImageData,
@@ -460,6 +445,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   currentlySelectedFolder.label &&
                 userID
               ) {
+                setCreatingFolder(true);
                 createFolder.mutate({
                   title: currentlySelectedFolder.label,
                   userID: userID,
@@ -469,7 +455,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
               }
             }}
           >
-            {readyToUpdate ? (
+            {readyToUpdate || creatingFolder ? (
               <LoadingDots width={48} height={24} radius={15} />
             ) : (
               "Save"
@@ -493,13 +479,14 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           )}
 
           <Image
+            blurDataURL={image.blurredImageData ?? base64Logo}
             className="h-auto w-auto rounded-md shadow-lg"
             src={image.s3ImageURL}
             alt={image?.title ?? "uploaded image"}
             width={500}
             height={500}
+            priority={true}
             placeholder={"blur"}
-            blurDataURL={image.blurredImageData ?? base64Logo}
           />
         </div>
         <button
