@@ -190,7 +190,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           <div className={classes.fileSize}>{imageData[index]?.image.size}</div>
           <div className={classes.titleLabel}>Title</div>
           <input
-            className={`${classes.titleInput} rounded-md pl-2 `}
+            className={`${classes.titleInput} mt-2 mb-2 rounded-md pl-2 sm:mt-0 sm:mb-0 `}
             type="text"
             placeholder="Optional"
             value={imageData[index]?.title}
@@ -202,7 +202,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
           />
           <div className={classes.descriptionLabel}>Description</div>
           <input
-            className={`${classes.descriptionInput} rounded-md pl-2 `}
+            className={`${classes.descriptionInput} mt-2 mb-2 rounded-md pl-2 sm:mt-0 sm:mb-0 `}
             type="text"
             placeholder="Optional"
             value={imageData[index]?.description}
