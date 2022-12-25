@@ -11,11 +11,9 @@ import { type Image, type Folder } from "@prisma/client";
 import StashLogoAnimation from "../logo/StashLogoAnimation";
 
 function Images() {
-  // should eventually use status to show something while fetching whether user
-  // is logged in or not
   const localStorageID = useLocalStorageContext();
 
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const { data: userImages, isLoading: isLoadingImages } =
     trpc.images.getUserImages.useQuery(
@@ -28,10 +26,8 @@ function Images() {
 
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
 
-  const {
-    data: imagesFromSelectedFolder,
-    isLoading: isLoadingSelectedFolderImages,
-  } = trpc.images.retrieveImageFromFolder.useQuery(selectedFolder?.id ?? "");
+  const { data: imagesFromSelectedFolder } =
+    trpc.images.retrieveImageFromFolder.useQuery(selectedFolder?.id ?? "");
 
   const [imageBeingEdited, setImageBeingEdited] = useState<Image>();
   const [imagesToShow, setImagesToShow] = useState<Image[]>([]);
@@ -87,6 +83,7 @@ function Images() {
                   <UploadedImage
                     key={image.id}
                     image={image}
+                    imageBeingEdited={imageBeingEdited}
                     setImageBeingEdited={setImageBeingEdited}
                     selectedImages={selectedImages}
                     setSelectedImages={setSelectedImages}
