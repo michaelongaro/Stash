@@ -4,16 +4,17 @@ import { FaLink, FaLock, FaLockOpen } from "react-icons/fa";
 
 import Image from "next/image";
 import { trpc } from "../../utils/trpc";
-import { toast } from "react-toastify";
 import { isMobile } from "react-device-detect";
 import { motion } from "framer-motion";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import base64Logo from "../../utils/base64Logo";
 import { toastNotification } from "../../utils/toastNotification";
 import LoadingDots from "../loadingAssets/LoadingDots";
+import useReturnFocusAfterModalClose from "../../hooks/useReturnFocusAfterModalClose";
 
 interface IUploadedImage {
   image: PrismaImage;
+  imageBeingEdited: PrismaImage | undefined;
   setImageBeingEdited: React.Dispatch<
     React.SetStateAction<PrismaImage | undefined>
   >;
@@ -23,6 +24,7 @@ interface IUploadedImage {
 
 function UploadedImage({
   image,
+  imageBeingEdited,
   setImageBeingEdited,
   selectedImages,
   setSelectedImages,
@@ -33,9 +35,12 @@ function UploadedImage({
   const [hoveringOnLockButton, setHoveringOnLockButton] =
     useState<boolean>(false);
   const [imageIsSelected, setImageIsSelected] = useState<boolean>(false);
+  const [imageIsFocused, setImageIsFocused] = useState<boolean>(false);
 
+  const parentContainerRef = useRef<HTMLDivElement | null>(null);
   const topControlsContainerRef = useRef<HTMLDivElement | null>(null);
   const bottomControlsContainerRef = useRef<HTMLDivElement | null>(null);
+  const editButtonRef = useRef<HTMLButtonElement | null>(null);
   const [isBeingUpdated, setIsBeingUpdated] = useState<boolean>(false);
 
   const updateImageData = trpc.images.updateImageData.useMutation({
@@ -65,8 +70,34 @@ function UploadedImage({
     }
   }, [selectedImages, image]);
 
+  useEffect(() => {
+    function handleKeydown(e: KeyboardEvent) {
+      if (e.key !== "Tab" && e.key !== "Shift") return;
+
+      if (
+        parentContainerRef.current &&
+        parentContainerRef.current.contains(document.activeElement)
+      ) {
+        setImageIsFocused(true);
+      } else {
+        setImageIsFocused(false);
+      }
+    }
+
+    document.addEventListener("keyup", handleKeydown);
+    return () => {
+      document.removeEventListener("keyup", handleKeydown);
+    };
+  }, []);
+
+  useReturnFocusAfterModalClose({
+    initiatorElement: editButtonRef,
+    modalOpenedValue: imageBeingEdited === image,
+  });
+
   return (
     <motion.div
+      ref={parentContainerRef}
       key={image.id}
       variants={dropIn}
       initial="hidden"
@@ -74,7 +105,9 @@ function UploadedImage({
       exit="exit"
       style={{
         background:
-          hoveringOnImage || imageIsSelected ? " rgb(191 219 254)" : "",
+          hoveringOnImage || imageIsSelected || imageIsFocused
+            ? " rgb(191 219 254)"
+            : "",
       }}
       className="relative flex min-h-[250px] items-center justify-center rounded-md transition-all"
       onMouseEnter={() => setHoveringOnImage(true)}
@@ -86,7 +119,7 @@ function UploadedImage({
         ref={topControlsContainerRef}
         style={{
           top:
-            hoveringOnImage || imageIsSelected
+            hoveringOnImage || imageIsSelected || imageIsFocused
               ? "-10px"
               : topControlsContainerRef.current
               ? `${
@@ -95,8 +128,11 @@ function UploadedImage({
                     .height
                 }px`
               : 0,
-          opacity: hoveringOnImage || imageIsSelected ? 1 : 0,
-          pointerEvents: hoveringOnImage || imageIsSelected ? "auto" : "none",
+          opacity: hoveringOnImage || imageIsSelected || imageIsFocused ? 1 : 0,
+          pointerEvents:
+            hoveringOnImage || imageIsSelected || imageIsFocused
+              ? "auto"
+              : "none",
         }}
         className={`absolute left-0 flex w-full items-center justify-between gap-4 rounded-tl-md rounded-tr-md bg-blue-400 pl-4 pr-4 pt-1 pb-1 transition-all`}
       >
@@ -191,7 +227,7 @@ function UploadedImage({
         ref={bottomControlsContainerRef}
         style={{
           bottom:
-            hoveringOnImage || imageIsSelected
+            hoveringOnImage || imageIsSelected || imageIsFocused
               ? "-10px"
               : bottomControlsContainerRef.current
               ? `${
@@ -200,12 +236,16 @@ function UploadedImage({
                     .height
                 }px`
               : 0,
-          opacity: hoveringOnImage || imageIsSelected ? 1 : 0,
-          pointerEvents: hoveringOnImage || imageIsSelected ? "auto" : "none",
+          opacity: hoveringOnImage || imageIsSelected || imageIsFocused ? 1 : 0,
+          pointerEvents:
+            hoveringOnImage || imageIsSelected || imageIsFocused
+              ? "auto"
+              : "none",
         }}
         className={`absolute left-0 flex w-full items-center justify-center gap-8 rounded-bl-md rounded-br-md bg-blue-500 pl-4 pr-4 pt-1 pb-1 text-blue-400 transition-all`}
       >
         <button
+          ref={editButtonRef}
           className="secondaryBtn"
           aria-label="Edit image details"
           onClick={() => setImageBeingEdited(image)}
@@ -220,7 +260,6 @@ function UploadedImage({
             navigator.clipboard.writeText(
               `${window.location}${image.randomizedURL}`
             );
-
             toastNotification("Sharable link copied");
           }}
         >
