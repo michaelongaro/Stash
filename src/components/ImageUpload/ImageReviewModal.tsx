@@ -9,16 +9,18 @@ import dynamic from "next/dynamic";
 import Select from "react-select";
 import { motion } from "framer-motion";
 
-import classes from "./ImageReviewModal.module.css";
 import UploadProgressModal from "./UploadProgressModal";
 import { trpc } from "../../utils/trpc";
 import isEqual from "lodash.isequal";
 import { FaCrop, FaTimes, FaTrash } from "react-icons/fa";
 import CreateableFolderDropdown from "./CreateableFolderDropdown";
-import useOnClickOutside from "../../hooks/useOnClickOutside";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import useScrollModalIntoView from "../../hooks/useScrollModalIntoView";
+import useOnClickOutside from "../../hooks/useOnClickOutside";
 import { useLocalStorageContext } from "../../context/LocalStorageContext";
+import useKeepFocusInModal from "../../hooks/useKeepFocusInModal";
+import classes from "./ImageReviewModal.module.css";
+import useReturnFocusAfterModalClose from "../../hooks/useReturnFocusAfterModalClose";
 
 interface IFileProps {
   files: IImage[];
@@ -73,9 +75,22 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
 
   const slideRef = useRef<SlideshowRef>(null);
   const reviewModalRef = useRef<HTMLDivElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useScrollModalIntoView();
-
+  useKeepFocusInModal({
+    modalRef: reviewModalRef,
+    firstElemRef: editButtonRef,
+    lastElemRef: nextButtonRef,
+    closeButtonRef: closeButtonRef,
+  });
+  useReturnFocusAfterModalClose({
+    initiatorElement: editButtonRef,
+    test: reviewModalRef,
+    modalOpenedValue: imageToBeEdited !== undefined,
+  });
   useOnClickOutside({
     ref: reviewModalRef,
     setter: setFiles,
@@ -155,6 +170,8 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             index + 1
           } of ${files.length})`}</div>
           <button
+            ref={editButtonRef}
+            tabIndex={0}
             className={`${classes.editButton} secondaryBtn flex items-center justify-center gap-4`}
             aria-label="Edit image"
             onClick={() =>
@@ -283,6 +300,7 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             />
           </div>
           <button
+            ref={nextButtonRef}
             className={`${classes.nextButton} secondaryBtn`}
             aria-label="Next image"
             onClick={() => changeIndex(true)}
@@ -290,15 +308,16 @@ function ImageReviewModal({ files, setFiles }: IFileProps) {
             Next
           </button>
 
-          <div
+          <button
             className="absolute top-2 right-2 transition hover:opacity-50"
+            ref={closeButtonRef}
             onClick={() => {
               document.body.style.overflow = "auto";
               setFiles([]);
             }}
           >
             <FaTimes size={"2rem"} style={{ cursor: "pointer" }} />
-          </div>
+          </button>
 
           <div onClick={(e) => e.stopPropagation()}>
             <DynamicHeader

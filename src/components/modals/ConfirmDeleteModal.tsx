@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { type Image, type Folder } from "@prisma/client";
 import { dropIn } from "../../utils/framerMotionDropInStyles";
 import { trpc } from "../../utils/trpc";
 import { toastNotification } from "../../utils/toastNotification";
 import LoadingDots from "../loadingAssets/LoadingDots";
+import useKeepFocusInModal from "../../hooks/useKeepFocusInModal";
 
 interface IConfirmDeleteModal {
   type: "image" | "images" | "folder";
@@ -32,6 +33,16 @@ function ConfirmDeleteModal({
   const utils = trpc.useContext();
 
   const [deletionInProgress, setDeletionInProgress] = useState<boolean>(false);
+
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const keepButtonRef = useRef<HTMLButtonElement | null>(null);
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useKeepFocusInModal({
+    modalRef: modalRef,
+    firstElemRef: keepButtonRef,
+    lastElemRef: deleteButtonRef,
+  });
 
   const deleteImage = trpc.images.deleteImage.useMutation({
     onMutate: () => {
@@ -115,6 +126,7 @@ function ConfirmDeleteModal({
       className="fixed top-0 left-0 z-[500] flex h-full w-full items-center justify-center bg-blue-700/70 transition-all"
     >
       <motion.div
+        ref={modalRef}
         key={"confirmDeleteInner"}
         variants={dropIn}
         initial="hidden"
@@ -127,6 +139,7 @@ function ConfirmDeleteModal({
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
+            ref={keepButtonRef}
             className="secondaryBtn"
             aria-label="Keep"
             onClick={() => {
@@ -136,6 +149,7 @@ function ConfirmDeleteModal({
             Keep
           </button>
           <button
+            ref={deleteButtonRef}
             className="dangerBtn"
             aria-label="Delete"
             onClick={() => {

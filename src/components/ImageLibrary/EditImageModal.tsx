@@ -33,6 +33,7 @@ import { useLocalStorageContext } from "../../context/LocalStorageContext";
 import base64Logo from "../../utils/base64Logo";
 import { toastNotification } from "../../utils/toastNotification";
 import LoadingDots from "../loadingAssets/LoadingDots";
+import useKeepFocusInModal from "../../hooks/useKeepFocusInModal";
 
 const DynamicHeader = dynamic(() => import("../ImageUpload/ImageEditorModal"), {
   ssr: false,
@@ -96,7 +97,12 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
     useState<boolean>(false);
   const [changesMade, setChangesMade] = useState<boolean>(false);
 
+  const editTitleInputRef = useRef<HTMLInputElement>(null);
+  const editDescriptionInputRef = useRef<HTMLInputElement>(null);
   const editImageDetailsRef = useRef<HTMLDivElement>(null);
+  const firstButtonRef = useRef<HTMLButtonElement>(null);
+  const lastButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const userID = localStorageID?.value ?? session?.user?.id;
 
@@ -207,7 +213,12 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
   }, [image, editedImageData, currentlySelectedFolder, editedImageFile]);
 
   useScrollModalIntoView();
-
+  useKeepFocusInModal({
+    modalRef: editImageDetailsRef,
+    firstElemRef: firstButtonRef,
+    lastElemRef: lastButtonRef,
+    closeButtonRef: closeButtonRef,
+  });
   useOnClickOutside({
     ref: editImageDetailsRef,
     setter: setImageBeingEdited,
@@ -244,6 +255,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             {editingTitle ? (
               <div className="flex items-center justify-center gap-4">
                 <input
+                  ref={editTitleInputRef}
                   className={`${classes.titleInput} w-full rounded-md pl-2 `}
                   type="text"
                   placeholder="Optional"
@@ -277,9 +289,13 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                   </div>
                 )}
                 <button
+                  ref={firstButtonRef}
                   className="secondaryBtn"
                   aria-label="Edit"
-                  onClick={() => setEditingTitle(true)}
+                  onClick={() => {
+                    setEditingTitle(true);
+                    setTimeout(() => editTitleInputRef.current?.focus(), 1);
+                  }}
                 >
                   <FaEdit size={"1rem"} />
                 </button>
@@ -291,6 +307,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             {editingDescription ? (
               <div className="flex items-center justify-center gap-4">
                 <input
+                  ref={editDescriptionInputRef}
                   className={`${classes.descriptionInput} w-full rounded-md pl-2 `}
                   type="text"
                   placeholder="Optional"
@@ -326,7 +343,13 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
                 <button
                   className="secondaryBtn"
                   aria-label="Edit"
-                  onClick={() => setEditingDescription(true)}
+                  onClick={() => {
+                    setEditingDescription(true);
+                    setTimeout(
+                      () => editDescriptionInputRef.current?.focus(),
+                      1
+                    );
+                  }}
                 >
                   <FaEdit size={"1rem"} />
                 </button>
@@ -425,14 +448,6 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           </div>
 
           <button
-            className={`${classes.editButton} secondaryBtn flex items-center justify-center gap-4`}
-            aria-label="Edit Image"
-            onClick={() => setImageToBeEdited(image.s3ImageURL)}
-          >
-            Edit image
-            <FaCrop size={"1rem"} />
-          </button>
-          <button
             className={`${classes.saveButton} primaryBtn`}
             aria-label="Save Changes"
             disabled={!changesMade}
@@ -462,6 +477,15 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
             )}
           </button>
           <button
+            className={`${classes.editButton} secondaryBtn flex items-center justify-center gap-4`}
+            aria-label="Edit Image"
+            onClick={() => setImageToBeEdited(image.s3ImageURL)}
+          >
+            Edit image
+            <FaCrop size={"1rem"} />
+          </button>
+          <button
+            ref={lastButtonRef}
             className={`${classes.deleteButton} dangerBtn flex items-center justify-center gap-4`}
             aria-label="Delete Image"
             onClick={() => setShowConfirmDeleteModal(true)}
@@ -490,6 +514,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
           />
         </div>
         <button
+          ref={closeButtonRef}
           className="absolute top-2 right-2 transition hover:opacity-50"
           onClick={() => {
             if (changesMade) {
