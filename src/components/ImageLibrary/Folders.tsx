@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { type Image, type Folder } from "@prisma/client";
 import { trpc } from "../../utils/trpc";
 import { AnimatePresence } from "framer-motion";
@@ -36,6 +36,8 @@ function Folders({
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] =
     useState<boolean>(false);
 
+  const titleRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     setTemporaryFolderData(selectedFolder); // maybe a problem?
   }, [selectedFolder]);
@@ -68,6 +70,8 @@ function Folders({
             onClick={() => {
               setSelectedFolder(null);
               setSelectedImages([]);
+              setEditingFolderData(false);
+              titleRef.current?.blur();
             }}
           >
             <FaHome size={"1rem"} />
@@ -81,6 +85,7 @@ function Folders({
                   <div className="flex items-center justify-center gap-2">
                     <FaFolder size={"1rem"} />
                     <input
+                      ref={titleRef}
                       className="w-full rounded-md pl-2"
                       type="text"
                       placeholder="Title"
@@ -140,7 +145,10 @@ function Folders({
                   <button
                     className="secondaryBtn"
                     aria-label="Edit"
-                    onClick={() => setEditingFolderData(true)}
+                    onClick={() => {
+                      setEditingFolderData(true);
+                      setTimeout(() => titleRef.current?.focus(), 1);
+                    }}
                   >
                     <FaEdit size={"1rem"} />
                   </button>
