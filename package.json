@@ -22,7 +22,7 @@
     "crypto-random-string": "^5.0.0",
     "framer-motion": "^7.6.19",
     "lodash.isequal": "^4.5.0",
-    "next": "13.0.2",
+    "next": "^13.1.0",
     "next-auth": "^4.15.1",
     "plaiceholder": "^2.5.0",
     "react": "18.2.0",
