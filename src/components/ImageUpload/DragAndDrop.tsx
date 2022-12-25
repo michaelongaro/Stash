@@ -116,7 +116,8 @@ function DragAndDrop({
       <div
         style={{
           borderColor: borderColor,
-          boxShadow: borderColor !== "#9ca3af" ? "0 0 10px 4px #d7d7d7" : "",
+          boxShadow: borderColor !== "#9ca3af" ? "0 0 5px 3px #d7d7d7" : "",
+          borderStyle: borderColor !== "#9ca3af" ? "solid" : "dashed",
           transition: "box-shadow 0.3s ease-in-out",
         }}
         {...getRootProps({
@@ -126,7 +127,7 @@ function DragAndDrop({
         })}
       >
         <input {...getInputProps()} />
-        <p
+        <div
           className={`${classes.dragAndDropText} flex items-center justify-center gap-2 text-gray-400`}
         >
           Drag + drop your image(s) here,
@@ -135,8 +136,8 @@ function DragAndDrop({
             <HiOutlineCursorClick size={"1.25rem"} />
             to manually select
           </div>
-        </p>
-        <p className="text-gray-400">- Size limit: 150MB -</p>
+        </div>
+        <div className="text-gray-400">- Size limit: 150MB -</div>
       </div>
 
       <AnimatePresence
