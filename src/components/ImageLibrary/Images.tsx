@@ -61,9 +61,9 @@ function Images() {
     <div className="mt-2 w-[85vw] pb-[15%]">
       {showLoadingAnimation ? (
         <div className="flex min-h-[75vh] flex-col items-center justify-center gap-2">
-          <div className="flex flex-col items-center justify-center gap-8 rounded-md bg-blue-200/90 p-12">
-            <StashLogoAnimation size={"8rem"} />
-            <div className="text-xl text-blue-400">Loading...</div>
+          <div className="flex flex-col items-center justify-center gap-6 rounded-md bg-blue-200/90 px-12 py-8">
+            <StashLogoAnimation size={"6rem"} />
+            <div className="text-blue-400">Loading...</div>
           </div>
         </div>
       ) : (
