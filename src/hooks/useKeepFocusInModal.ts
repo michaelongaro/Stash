@@ -23,18 +23,37 @@ export default function useKeepFocusInModal({
 
       // not sure why a single e.preventDefault() didn't work
 
-      if (closeButtonRef) {
-        if (document.activeElement === lastElemRef.current) {
-          e.preventDefault();
-          closeButtonRef?.current?.focus();
-        } else if (document.activeElement === closeButtonRef?.current) {
-          e.preventDefault();
-          firstElemRef?.current?.focus();
+      if (e.key === "Tab" && !e.shiftKey) {
+        if (closeButtonRef) {
+          if (document.activeElement === lastElemRef.current) {
+            e.preventDefault();
+            closeButtonRef?.current?.focus();
+          } else if (document.activeElement === closeButtonRef?.current) {
+            e.preventDefault();
+            firstElemRef?.current?.focus();
+          }
+        } else {
+          if (document.activeElement === lastElemRef.current) {
+            e.preventDefault();
+            firstElemRef?.current?.focus();
+          }
         }
-      } else {
-        if (document.activeElement === lastElemRef.current) {
-          e.preventDefault();
-          firstElemRef?.current?.focus();
+      }
+
+      if (e.key === "Tab" && e.shiftKey) {
+        if (closeButtonRef) {
+          if (document.activeElement === firstElemRef.current) {
+            e.preventDefault();
+            closeButtonRef?.current?.focus();
+          } else if (document.activeElement === closeButtonRef?.current) {
+            e.preventDefault();
+            lastElemRef?.current?.focus();
+          }
+        } else {
+          if (document.activeElement === firstElemRef.current) {
+            e.preventDefault();
+            lastElemRef?.current?.focus();
+          }
         }
       }
     }
