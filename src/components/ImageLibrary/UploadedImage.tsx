@@ -11,6 +11,8 @@ import base64Logo from "../../utils/base64Logo";
 import { toastNotification } from "../../utils/toastNotification";
 import LoadingDots from "../loadingAssets/LoadingDots";
 import useReturnFocusAfterModalClose from "../../hooks/useReturnFocusAfterModalClose";
+import { useLocalStorageContext } from "../../context/LocalStorageContext";
+import { useSession } from "next-auth/react";
 
 interface IUploadedImage {
   image: PrismaImage;
@@ -29,7 +31,14 @@ function UploadedImage({
   selectedImages,
   setSelectedImages,
 }: IUploadedImage) {
+  const { data: session } = useSession();
   const utils = trpc.useContext();
+  const localStorageID = useLocalStorageContext();
+
+  const { data: hidePrivateImages } =
+    trpc.users.getHidePrivateImageStatus.useQuery(
+      localStorageID?.value ?? session?.user?.id
+    );
 
   const [hoveringOnImage, setHoveringOnImage] = useState<boolean>(false);
   const [hoveringOnLockButton, setHoveringOnLockButton] =
@@ -187,7 +196,7 @@ function UploadedImage({
 
           <div className="flex items-center justify-center">
             <input
-              className="h-[1.25rem] w-[1.25rem]"
+              className="h-[1.25rem] w-[1.25rem] cursor-pointer"
               aria-label="select image toggle"
               type="checkbox"
               checked={selectedImages.includes(image.id)}
@@ -207,21 +216,89 @@ function UploadedImage({
         </div>
       </div>
 
-      <Image
-        className="h-auto w-auto cursor-pointer rounded-md shadow-lg"
-        src={image.s3ImageURL}
-        alt={image?.title ?? "uploaded image"}
-        width={250}
-        height={250}
-        priority={true}
-        onClick={() => {
-          if (!isMobile) {
-            setImageBeingEdited(image);
-          }
+      <div
+        style={{
+          opacity:
+            hidePrivateImages && !image.isPublic && !hoveringOnImage ? 1 : 0,
+          pointerEvents:
+            hidePrivateImages && !image.isPublic && !hoveringOnImage
+              ? "auto"
+              : "none",
+          width:
+            hidePrivateImages && !image.isPublic && !hoveringOnImage
+              ? "100%"
+              : 0,
         }}
-        placeholder={"blur"}
-        blurDataURL={image.blurredImageData ?? base64Logo}
-      />
+        className="relative z-[-1] rounded-md  transition-all"
+      >
+        <div className="absolute top-0 left-0 z-50 flex h-full w-full items-center justify-center">
+          <div className="flex flex-col items-center justify-center gap-2 drop-shadow-md">
+            <FaLock size={"2rem"} />
+            <div>Private</div>
+          </div>
+        </div>
+        <div className="rounded-md bg-blue-700">
+          <Image
+            className="h-full w-full cursor-pointer rounded-md opacity-60 shadow-lg"
+            src={image.blurredImageData ?? base64Logo}
+            alt={image?.title ?? "uploaded image"}
+            width={250}
+            height={250}
+            priority={true}
+            onClick={() => {
+              if (!isMobile) {
+                setImageBeingEdited(image);
+              }
+            }} // needed?
+          />
+        </div>
+      </div>
+      <div
+        style={{
+          opacity:
+            image.isPublic ||
+            (!image.isPublic && !hidePrivateImages) ||
+            hoveringOnImage
+              ? 1
+              : 0,
+          pointerEvents:
+            image.isPublic ||
+            (!image.isPublic && !hidePrivateImages) ||
+            hoveringOnImage
+              ? "auto"
+              : "none",
+          width:
+            image.isPublic ||
+            (!image.isPublic && !hidePrivateImages) ||
+            hoveringOnImage
+              ? "100%"
+              : 0,
+          height:
+            image.isPublic ||
+            (!image.isPublic && !hidePrivateImages) ||
+            hoveringOnImage
+              ? "100%"
+              : 0,
+          transition: "all 150ms",
+        }}
+        className="z-[-1] flex items-center justify-center"
+      >
+        <Image
+          className="h-auto w-auto cursor-pointer rounded-md shadow-lg"
+          src={image.s3ImageURL}
+          alt={image?.title ?? "uploaded image"}
+          width={250}
+          height={250}
+          priority={true}
+          onClick={() => {
+            if (!isMobile) {
+              setImageBeingEdited(image);
+            }
+          }}
+          placeholder={"blur"}
+          blurDataURL={image.blurredImageData ?? base64Logo}
+        />
+      </div>
 
       <div
         ref={bottomControlsContainerRef}
