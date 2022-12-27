@@ -13,6 +13,7 @@ import {
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useLocalStorageContext } from "../../context/LocalStorageContext";
 import { useSession } from "next-auth/react";
+import LoadingDots from "../loadingAssets/LoadingDots";
 
 interface IFolders {
   selectedFolder: Folder | null;
@@ -36,6 +37,8 @@ function Folders({
     null
   );
 
+  const [updatingHidePrivateImages, setUpdatingHidePrivateImages] =
+    useState<boolean>(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] =
     useState<boolean>(false);
 
@@ -65,6 +68,7 @@ function Folders({
       },
       onSettled: () => {
         utils.users.getHidePrivateImageStatus.invalidate();
+        setTimeout(() => setUpdatingHidePrivateImages(false), 400);
       },
     });
 
@@ -215,19 +219,24 @@ function Folders({
         </>
       )}
       <div className="flex items-center justify-center">
-        <div className="flex max-w-fit items-start justify-center gap-2 rounded-md bg-blue-700/80 p-2">
-          <input
-            className="h-[1.25rem] w-[1.25rem] cursor-pointer"
-            aria-label="select image toggle"
-            type="checkbox"
-            checked={hidePrivateImages ?? true}
-            onChange={() =>
-              toggleHidePrivateImages.mutate({
-                userID: localStorageID?.value ?? session?.user?.id,
-                newValue: !hidePrivateImages,
-              })
-            }
-          />
+        <div className="flex max-w-fit items-center justify-center gap-2 rounded-md bg-blue-700/80 p-2">
+          {updatingHidePrivateImages ? (
+            <LoadingDots height={32} width={32} radius={12} />
+          ) : (
+            <input
+              className="h-[1.25rem] w-[1.25rem] cursor-pointer"
+              aria-label="select image toggle"
+              type="checkbox"
+              checked={hidePrivateImages ?? true}
+              onChange={() => {
+                setUpdatingHidePrivateImages(true);
+                toggleHidePrivateImages.mutate({
+                  userID: localStorageID?.value ?? session?.user?.id,
+                  newValue: !hidePrivateImages,
+                });
+              }}
+            />
+          )}
           <div className="text-sm">Hide private images</div>
         </div>
       </div>
