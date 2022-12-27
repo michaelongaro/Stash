@@ -11,6 +11,8 @@ import {
   FaCheck,
 } from "react-icons/fa";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
+import { useLocalStorageContext } from "../../context/LocalStorageContext";
+import { useSession } from "next-auth/react";
 
 interface IFolders {
   selectedFolder: Folder | null;
@@ -26,6 +28,7 @@ function Folders({
   setSelectedImages,
   folders,
 }: IFolders) {
+  const { data: session } = useSession();
   const utils = trpc.useContext();
 
   const [editingFolderData, setEditingFolderData] = useState<boolean>(false);
@@ -41,6 +44,29 @@ function Folders({
   useEffect(() => {
     setTemporaryFolderData(selectedFolder); // maybe a problem?
   }, [selectedFolder]);
+
+  const localStorageID = useLocalStorageContext();
+
+  const { data: hidePrivateImages } =
+    trpc.users.getHidePrivateImageStatus.useQuery(
+      localStorageID?.value ?? session?.user?.id
+    );
+
+  const toggleHidePrivateImages =
+    trpc.users.toggleHidePrivateImages.useMutation({
+      onMutate: () => {
+        utils.users.getHidePrivateImageStatus.cancel();
+        const optimisticUpdate =
+          utils.users.getHidePrivateImageStatus.getData();
+
+        if (optimisticUpdate) {
+          utils.users.getHidePrivateImageStatus.setData(optimisticUpdate);
+        }
+      },
+      onSettled: () => {
+        utils.users.getHidePrivateImageStatus.invalidate();
+      },
+    });
 
   const updateFolderData = trpc.folders.updateFolderData.useMutation({
     onMutate: () => {
@@ -61,7 +87,7 @@ function Folders({
   });
 
   return (
-    <div className="rounded-md bg-blue-500 p-2">
+    <div className="flex flex-col justify-center gap-2 rounded-md bg-blue-500 p-2">
       {selectedFolder ? (
         <div className="flex flex-col items-center justify-start gap-4 sm:flex-row">
           <button
@@ -188,6 +214,23 @@ function Folders({
           </div>
         </>
       )}
+      <div className="flex items-center justify-center">
+        <div className="flex max-w-fit items-start justify-center gap-2 rounded-md bg-blue-700/80 p-2">
+          <input
+            className="h-[1.25rem] w-[1.25rem] cursor-pointer"
+            aria-label="select image toggle"
+            type="checkbox"
+            checked={hidePrivateImages}
+            onChange={() =>
+              toggleHidePrivateImages.mutate({
+                userID: localStorageID?.value ?? session?.user?.id,
+                newValue: !hidePrivateImages,
+              })
+            }
+          />
+          <div className="text-sm">Hide private images</div>
+        </div>
+      </div>
 
       <AnimatePresence
         initial={false}
