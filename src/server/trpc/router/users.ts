@@ -51,9 +51,10 @@ export const usersRouter = router({
     .input(z.string().nullish())
     .query(async ({ ctx, input }) => {
       try {
+        if (!input) return true;
         const user = await ctx.prisma.user.findUnique({
           where: {
-            id: input ?? "userID not found", // change later
+            id: input,
           },
         });
         return user?.hidePrivateImages;
