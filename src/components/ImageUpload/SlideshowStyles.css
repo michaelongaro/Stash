@@ -30,6 +30,11 @@
 
   max-width: 95%;
   margin: auto;
+  cursor: grab;
+}
+
+.react-slideshow-container:active {
+  cursor: grabbing;
 }
 
 .react-slideshow-container .nav:last-of-type {
