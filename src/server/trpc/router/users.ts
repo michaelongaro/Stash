@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../trpc";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 
 export const usersRouter = router({
   createNewUser: publicProcedure.mutation(async ({ ctx }) => {
@@ -41,6 +41,41 @@ export const usersRouter = router({
         await ctx.prisma.user.delete({
           where: {
             id: input.oldID,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+  getHidePrivateImageStatus: protectedProcedure
+    .input(z.string().nullish())
+    .query(async ({ ctx, input }) => {
+      try {
+        const user = await ctx.prisma.user.findUnique({
+          where: {
+            id: input ?? "userID not found", // change later
+          },
+        });
+        return user?.hidePrivateImages;
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+  toggleHidePrivateImages: protectedProcedure
+    .input(
+      z.object({
+        userID: z.string().nullish(),
+        newValue: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.prisma.user.update({
+          where: {
+            id: input.userID ?? "userID not found", // change later
+          },
+          data: {
+            hidePrivateImages: input.newValue,
           },
         });
       } catch (error) {
