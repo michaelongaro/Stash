@@ -35,7 +35,7 @@ function UploadedImage({
   const utils = trpc.useContext();
   const localStorageID = useLocalStorageContext();
 
-  const { data: hidePrivateImages } =
+  let { data: hidePrivateImages } =
     trpc.users.getHidePrivateImageStatus.useQuery(
       localStorageID?.value ?? session?.user?.id
     );
@@ -103,6 +103,11 @@ function UploadedImage({
     initiatorElement: editButtonRef,
     modalOpenedValue: imageBeingEdited === image,
   });
+
+  // makes sure that private images are hidden until the query is resolved
+  if (hidePrivateImages === undefined) {
+    hidePrivateImages = true;
+  }
 
   return (
     <motion.div
@@ -239,7 +244,7 @@ function UploadedImage({
         </div>
         <div className="rounded-md bg-blue-700">
           <Image
-            className="h-full w-full cursor-pointer rounded-md opacity-60 shadow-lg"
+            className="h-full w-full cursor-pointer rounded-md opacity-40 shadow-lg"
             src={image.blurredImageData ?? base64Logo}
             alt={image?.title ?? "uploaded image"}
             width={250}

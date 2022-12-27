@@ -220,7 +220,7 @@ function Folders({
             className="h-[1.25rem] w-[1.25rem] cursor-pointer"
             aria-label="select image toggle"
             type="checkbox"
-            checked={hidePrivateImages}
+            checked={hidePrivateImages ?? true}
             onChange={() =>
               toggleHidePrivateImages.mutate({
                 userID: localStorageID?.value ?? session?.user?.id,
