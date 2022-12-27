@@ -24,6 +24,8 @@ function Images() {
       localStorageID?.value ?? session?.user?.id
     );
 
+  const [showLoadingAnimation, setShowLoadingAnimation] =
+    useState<boolean>(true);
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
 
   const { data: imagesFromSelectedFolder } =
@@ -42,18 +44,31 @@ function Images() {
     }
   }, [userImages, selectedFolder, imagesFromSelectedFolder]);
 
+  useEffect(() => {
+    let timeoutID: ReturnType<typeof setTimeout>;
+    if (folders && userImages) {
+      timeoutID = setTimeout(() => setShowLoadingAnimation(false), 2850);
+    }
+
+    return () => {
+      clearTimeout(timeoutID);
+    };
+  }, [folders, userImages]);
+
   if (isLoadingImages || isLoadingFolders) return <></>;
 
   return (
     <div className="mt-2 w-[85vw] pb-[15%]">
-      {!folders && !userImages ? (
-        <div className="flex min-h-[100vh] flex-col items-center justify-center gap-2">
-          <StashLogoAnimation size={"6rem"} />
-          <div className="text-blue-500">Loading...</div>
+      {showLoadingAnimation ? (
+        <div className="flex min-h-[75vh] flex-col items-center justify-center gap-2">
+          <div className="flex flex-col items-center justify-center  gap-4 rounded-md bg-blue-200/90 p-8">
+            <StashLogoAnimation size={"6rem"} />
+            <div className="text-blue-400">Loading...</div>
+          </div>
         </div>
       ) : (
         <>
-          {folders && userImages && (
+          {!showLoadingAnimation && folders && (
             <Folders
               folders={folders}
               selectedFolder={selectedFolder}
