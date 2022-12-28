@@ -234,7 +234,7 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] items-center justify-center bg-blue-800/90 transition-all"
+      className="fixed top-0 left-0 z-[500] flex min-h-[100vh] min-w-[100vw] justify-center bg-blue-800/90 transition-all sm:items-center"
     >
       <motion.div
         key={image.id}
@@ -244,8 +244,8 @@ function EditImageModal({ image, setImageBeingEdited }: IEditImageModal) {
         animate="visible"
         exit="exit"
         className="relative m-6 
-        flex max-h-[85vh] flex-col items-center
-        justify-start gap-4 overflow-y-auto rounded-md bg-blue-500/90 p-[0.5rem] pt-12 sm:max-w-[95vw] sm:p-10 lg:max-w-[85vw]"
+        flex max-h-[87vh] flex-col items-center justify-start
+        gap-4 overflow-y-auto rounded-md bg-blue-500/90 p-[0.5rem] pt-12 sm:max-h-[95vh] sm:max-w-[95vw] sm:p-10 lg:max-w-[85vw]"
       >
         <div
           className={`${classes.editImageDetailsGrid} rounded-md bg-blue-400/90 p-4`}
