@@ -197,7 +197,9 @@ function Folders({
         </div>
       ) : (
         <>
-          <div className="pl-2 text-xl">Folders</div>
+          <div className="pl-2 text-xl">
+            {folders.length > 0 ? "Folders" : "No folders created yet."}
+          </div>
           <div className="flex flex-wrap items-center justify-start gap-4 ">
             {folders.map((folder) => {
               return (
