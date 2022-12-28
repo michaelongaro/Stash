@@ -30,10 +30,13 @@
 
 @media (max-width: 645px) {
   .editImageDetailsGrid {
-    grid-template-rows: repeat(13, 1fr);
+    grid-template-rows: repeat(16, 0.4fr);
     grid-template-areas:
       " saveButton saveButton  "
+      " saveButton saveButton  "
       " editButton editButton  "
+      " editButton editButton  "
+      " deleteButton deleteButton "
       " deleteButton deleteButton "
       " titleLabel titleLabel  "
       " titleInput titleInput  "
@@ -45,7 +48,7 @@
       " visibilityDowndownInput visibilityDowndownInput  "
       " dateCreatedLabel dateCreatedValue "
       " linkLabel linkValue";
-    width: 95%;
+    width: 99%;
   }
 }
 
