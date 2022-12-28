@@ -216,6 +216,7 @@ input {
 .FIE_main-container {
   flex-direction: column-reverse;
   gap: 1rem;
+  padding: 12px !important;
 }
 
 .FIE_tabs {
@@ -233,5 +234,4 @@ input {
 
 .konvajs-content {
   margin: auto;
-  width: 100% !important;
 }
