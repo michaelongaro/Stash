@@ -72,53 +72,53 @@ function ImageEditorModal({
         ref={modalRef}
         className="relative flex h-[95%] flex-col items-center justify-center md:w-[95%] md:gap-0 lg:w-[80%] lg:gap-4"
       >
-        <div ref={imageEditorRef}>
-          <FilerobotImageEditor
-            key={imageEditorKey} // workaround to reset the editor when page is resized
-            source={
-              typeof imageToBeEdited === "string"
-                ? imageToBeEdited
-                : URL.createObjectURL(imageToBeEdited)
+        {/* <div ref={imageEditorRef}> */}
+        <FilerobotImageEditor
+          key={imageEditorKey} // workaround to reset the editor when page is resized
+          source={
+            typeof imageToBeEdited === "string"
+              ? imageToBeEdited
+              : URL.createObjectURL(imageToBeEdited)
+          }
+          onBeforeSave={() => false}
+          translations={{
+            save: "Apply changes",
+          }}
+          onSave={(editedImageObject, designState) => {
+            if (setEditedImageFile) {
+              setEditedImageFile(
+                dataURLtoFile(editedImageObject.imageBase64!, "editedImage")
+              );
+            } else if (
+              setImageData &&
+              index !== undefined &&
+              typeof imageToBeEdited !== "string"
+            ) {
+              setImageData((oldImageData) => {
+                const newImageData = [...oldImageData];
+                if (newImageData[index]?.image.imageFile) {
+                  newImageData[index]!.image.imageFile = dataURLtoFile(
+                    editedImageObject.imageBase64!,
+                    imageToBeEdited.name
+                  );
+                }
+                return newImageData;
+              });
             }
-            onBeforeSave={() => false}
-            translations={{
-              save: "Apply changes",
-            }}
-            onSave={(editedImageObject, designState) => {
-              if (setEditedImageFile) {
-                setEditedImageFile(
-                  dataURLtoFile(editedImageObject.imageBase64!, "editedImage")
-                );
-              } else if (
-                setImageData &&
-                index !== undefined &&
-                typeof imageToBeEdited !== "string"
-              ) {
-                setImageData((oldImageData) => {
-                  const newImageData = [...oldImageData];
-                  if (newImageData[index]?.image.imageFile) {
-                    newImageData[index]!.image.imageFile = dataURLtoFile(
-                      editedImageObject.imageBase64!,
-                      imageToBeEdited.name
-                    );
-                  }
-                  return newImageData;
-                });
-              }
-              setImageToBeEdited(undefined);
-            }}
-            annotationsCommon={{
-              fill: "#ff0000",
-            }}
-            Text={{ text: "Your text here..." }}
-            Rotate={{ angle: 90, componentType: "slider" }}
-            savingPixelRatio={2} // what do these do
-            previewPixelRatio={2} // what do these do
-            tabsIds={[TABS.ADJUST, TABS.ANNOTATE, TABS.RESIZE]}
-            defaultTabId={TABS.ADJUST}
-            defaultToolId={TOOLS.CROP}
-          />
-        </div>
+            setImageToBeEdited(undefined);
+          }}
+          annotationsCommon={{
+            fill: "#ff0000",
+          }}
+          Text={{ text: "Your text here..." }}
+          Rotate={{ angle: 90, componentType: "slider" }}
+          savingPixelRatio={2} // what do these do
+          previewPixelRatio={2} // what do these do
+          tabsIds={[TABS.ADJUST, TABS.ANNOTATE, TABS.RESIZE]}
+          defaultTabId={TABS.ADJUST}
+          defaultToolId={TOOLS.CROP}
+        />
+        {/* </div> */}
         <button
           ref={discardChangesButtonRef}
           className="dangerBtn !mt-2 "
