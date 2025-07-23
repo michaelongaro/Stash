@@ -1,8 +1,6 @@
 
 # Stash
 
-live site: [Stash](https://stash-xi.vercel.app/).
-
 ![Screenshot of website](https://i.gyazo.com/b82af8a596e46e6688c24a99cdc3b0e0.jpg)
 
 
